@@ -1,19 +1,22 @@
 package com.orderManagement.orderService.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import com.orderManagement.orderService.entity.Order;
 import com.orderManagement.orderService.entity.OrderItem;
+import com.orderManagement.orderService.service.OrderService;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/orders")
 public class OrderController {
 
+	private final OrderService orderService;
+	
+	public OrderController(OrderService orderService) {
+		this.orderService = orderService;
+	}
+	
 	@PostMapping("/")
 	public void createOrder() {
 		
@@ -52,19 +55,29 @@ public class OrderController {
 //	PATCH	/orders/{id}/status	Update only the order status
 //	DELETE	/orders/{id}	Delete or cancel the order
 	
-	@PostMapping("/orders/{orderId}/items")
-	public void addItemToOrder(OrderItem item) {
-		
+	@PostMapping("/{orderId}/items")
+	public ResponseEntity<Order> addItemToOrder(
+			@PathVariable int orderId,
+			@RequestBody OrderItem item) {
+		Order updatedOrder = orderService.addItemToOrder(orderId, item);
+		return ResponseEntity.ok(updatedOrder);
 	}
 	
-	@PutMapping("/orders/{orderId}/items/{itemId}")
-	public void updateItem() {
-		
+	@PutMapping("/{orderId}/items/{itemId}")
+	public ResponseEntity<Order> updateItem(
+			@PathVariable int orderId,
+			@PathVariable int itemId,
+			@RequestBody OrderItem updatedItem) {
+		Order updatedOrder = orderService.updateItem(orderId, itemId, updatedItem);
+		return ResponseEntity.ok(updatedOrder);
 	}
 	
-	@DeleteMapping("/orders/{orderId}/items/{itemId}")
-	public void deleteItem() {
-		
+	@DeleteMapping("/{orderId}/items/{itemId}")
+	public ResponseEntity<Order> deleteItem(
+			@PathVariable int orderId,
+			@PathVariable int itemId) {
+		Order updatedOrder = orderService.deleteItem(orderId, itemId);
+		return ResponseEntity.ok(updatedOrder);
 	}
 	
 	
