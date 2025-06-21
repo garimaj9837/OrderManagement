@@ -5,6 +5,7 @@ target/
 *.war
 *.ear
 *.settings
+*.factorypath
 dependency-reduced-pom.xml
 
 customer-service/target/

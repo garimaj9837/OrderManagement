@@ -2,6 +2,7 @@ package com.orderManagement.orderService.service;
 
 import java.util.List;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,9 @@ import com.orderManagement.orderService.entity.Order;
 import com.orderManagement.orderService.entity.OrderItem;
 import com.orderManagement.orderService.exceptionHandler.OrderNotFoundException;
 import com.orderManagement.orderService.repository.OrderRepository;
+import com.orderManagement.orderService.dto.OrderItemRequestDto;
+import com.orderManagement.orderService.dto.OrderItemResponseDto;
+import com.orderManagement.orderService.dto.OrderRequestDto;
 import com.orderManagement.orderService.dto.ProductDto;
 
 @Service
@@ -23,19 +27,63 @@ public class OrderServiceImpl implements OrderService {
 		this.productService=productService;
 	}
 	
+	public List<OrderItemResponseDto> addToCart(OrderRequestDto orderRequestDto) {
+		List<OrderItemResponseDto> itemResponseList = new ArrayList<>();
+		
+		for (OrderItemRequestDto itemRequest : orderRequestDto.getOrderitemRequest()) {
+			OrderItemResponseDto itemResponse = new OrderItemResponseDto();
+			itemResponse.setProductId(itemRequest.getProductId());
+			itemResponse.setQuantity(itemRequest.getQuantity());
+			
+			try {
+				// Check stock availability
+				if (productService.checkStockAvailability(itemRequest.getProductId(), itemRequest.getQuantity())) {
+					// Get product details from product service
+					ProductDto product = productService.getProductById(itemRequest.getProductId());
+					System.out.println("Product: "+product);
+					// Set product details
+					itemResponse.setPrice(product.getProductPrice());
+					itemResponse.setDiscount(product.getProductDiscount());
+					itemResponse.setSubtotal(calculateSubtotal(itemRequest.getQuantity(), product.getProductPrice(), product.getProductDiscount()));
+					itemResponse.setAvailable(true);
+					itemResponse.setMessage("Item added successfully");
+				}
+			} catch (Exception e) {
+				// Item is not available
+				itemResponse.setAvailable(false);
+				itemResponse.setMessage(e.getMessage());
+				itemResponse.setPrice(BigDecimal.ZERO);
+				itemResponse.setDiscount(BigDecimal.ZERO);
+				itemResponse.setSubtotal(BigDecimal.ZERO);
+			}
+			
+			itemResponseList.add(itemResponse);
+		}
+		
+		return itemResponseList;
+	}
+	
+	private BigDecimal calculateSubtotal(int quantity, BigDecimal price, BigDecimal discount) {
+		BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
+		return total.subtract(discount != null ? discount : BigDecimal.ZERO);
+	}
+	
+	//TASK: We are getting order Along with order item, we need to verify item availability, 
 	@Transactional
 	public Order createOrder(Order order) {
 		// Check stock availability for all items before creating the order
 		for (OrderItem item : order.getOrderitems()) {
-			productService.checkStockAvailability(item.getProductId(), item.getQuantity());
+			if(productService.checkStockAvailability(item.getProductId(), item.getQuantity())) {
+				
+			}
 		}
 		
 		// Calculate subtotals and set order total
 		for (OrderItem item : order.getOrderitems()) {
 			ProductDto product = productService.getProductById(item.getProductId());
-			item.setPrice(product.getPrice());
-			item.setDiscount(product.getDiscount());
-			item.setSubtotal(calculateSubtotal(item));
+			item.setPrice(product.getProductPrice());
+			item.setDiscount(product.getProductDiscount());
+			item.setSubtotal(calculateSubtotal(item.getQuantity(), item.getPrice(), item.getDiscount()));
 		}
 		updateOrderTotal(order);
 		
@@ -116,9 +164,9 @@ public class OrderServiceImpl implements OrderService {
 		
 		// Set product details from product service
 		item.setOrder(order);
-		item.setPrice(product.getPrice());
-		item.setDiscount(product.getDiscount());
-		item.setSubtotal(calculateSubtotal(item));
+		item.setPrice(product.getProductPrice());
+		item.setDiscount(product.getProductDiscount());
+		item.setSubtotal(calculateSubtotal(item.getQuantity(), item.getPrice(), item.getDiscount()));
 		
 		order.getOrderitems().add(item);
 		updateOrderTotal(order);
@@ -141,9 +189,9 @@ public class OrderServiceImpl implements OrderService {
 		
 		// Update only quantity, use latest price and discount from product service
 		existingItem.setQuantity(updatedItem.getQuantity());
-		existingItem.setPrice(product.getPrice());
-		existingItem.setDiscount(product.getDiscount());
-		existingItem.setSubtotal(calculateSubtotal(existingItem));
+		existingItem.setPrice(product.getProductPrice());
+		existingItem.setDiscount(product.getProductDiscount());
+		existingItem.setSubtotal(calculateSubtotal(existingItem.getQuantity(), existingItem.getPrice(), existingItem.getDiscount()));
 		
 		updateOrderTotal(order);
 		return orderRepository.save(order);
@@ -155,11 +203,6 @@ public class OrderServiceImpl implements OrderService {
 		order.getOrderitems().removeIf(item -> item.getId() == itemId);
 		updateOrderTotal(order);
 		return orderRepository.save(order);
-	}
-	
-	private BigDecimal calculateSubtotal(OrderItem item) {
-		BigDecimal total = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-		return total.subtract(item.getDiscount() != null ? item.getDiscount() : BigDecimal.ZERO);
 	}
 	
 	private void updateOrderTotal(Order order) {

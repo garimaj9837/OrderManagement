@@ -1,5 +1,7 @@
 package com.orderManagement.productService.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,8 +25,8 @@ public class Product {
 	private int productId;
 	private String productName;
 	private String productCategory;
-	private int productquantity;
-	private double productPrice;
-	private int productDiscount;
+	private int productquantity; //hidden from user
+	private BigDecimal productPrice;
+	private BigDecimal productDiscount;
 
 }

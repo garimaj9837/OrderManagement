@@ -1,5 +1,6 @@
 package com.orderManagement.productService.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +49,16 @@ public class ProductController {
 	}
 	
 	@PatchMapping("/discount/{id}")
-	public ResponseEntity<Product> updateDiscount(@PathVariable int id,@RequestBody int discount){
+	public ResponseEntity<Product> updateDiscount(@PathVariable int id,@RequestBody BigDecimal discount){
 		Product updatedProduct= productService.updateDiscount(id,discount);
 		return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
 	}
 	
 	@GetMapping("/id/{id}")
 	public ResponseEntity<Product> getProductById(@PathVariable("id") int productId) {
+		System.out.println("Fetching product by id" +productId);
 		Product product=productService.getProductById(productId);
+		System.out.println("product found : " +product.getProductName()+"  "+product.getProductquantity());
 		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 	

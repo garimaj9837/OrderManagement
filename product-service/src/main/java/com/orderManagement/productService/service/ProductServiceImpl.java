@@ -1,5 +1,6 @@
 package com.orderManagement.productService.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +64,7 @@ public class ProductServiceImpl implements ProductService{
 	}
 
 	@Override
-	public Product updateDiscount(int id, int discount) {
+	public Product updateDiscount(int id, BigDecimal discount) {
 		Product product=getProductById(id);
 		product.setProductDiscount(discount);
 		Product updatedProduct=productRepository.save(product);

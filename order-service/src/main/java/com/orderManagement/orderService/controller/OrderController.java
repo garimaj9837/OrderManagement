@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import com.orderManagement.orderService.entity.Order;
 import com.orderManagement.orderService.entity.OrderItem;
 import com.orderManagement.orderService.service.OrderService;
+import com.orderManagement.orderService.dto.OrderRequestDto;
+import com.orderManagement.orderService.dto.OrderItemResponseDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -17,9 +21,11 @@ public class OrderController {
 		this.orderService = orderService;
 	}
 	
+	
+	
 	@PostMapping("/")
-	public void createOrder() {
-		
+	public void createOrder(@RequestBody Order order) {
+		orderService.createOrder(order);
 	}
 	
 	@GetMapping("/{id}")
@@ -109,4 +115,10 @@ public class OrderController {
 //	GET	/orders?customerId={customerId}	Get orders for a specific customer
 //	GET	/orders?status={status}	Filter by status: PLACED, SHIPPED, etc.
 //	GET	/orders?dateFrom=...&dateTo=...	Filter by date range
+	
+	@PostMapping("/cart")
+	public ResponseEntity<List<OrderItemResponseDto>> addToCart(@RequestBody OrderRequestDto orderRequestDto) {
+		List<OrderItemResponseDto> response = orderService.addToCart(orderRequestDto);
+		return ResponseEntity.ok(response);
+	}
 }

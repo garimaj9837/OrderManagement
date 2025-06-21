@@ -23,7 +23,7 @@ public class OrderItem {
 	
 	private int productId;
 	private int quantity;
-	private BigDecimal price;
+	private BigDecimal price; // here because at purchase what was price and discount
 	private BigDecimal discount;
 	private BigDecimal subtotal; // price * quantity - discount
 }

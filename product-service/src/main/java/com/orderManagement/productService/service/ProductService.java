@@ -1,5 +1,6 @@
 package com.orderManagement.productService.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public interface ProductService {
 	public Product getProductById(int id);
 	public void deleteProduct(int productId);
 	public List<Product> getProductsbyCategory(String category);
-	public Product updateDiscount(int id, int discount);
+	public Product updateDiscount(int id, BigDecimal discount);
 	
 
 }
