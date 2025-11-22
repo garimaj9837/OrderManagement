@@ -1,23 +1,17 @@
 export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  discount: number;
-  stockQuantity: number;
-  category?: string;
-  imageUrl?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  productId: number;
+  productName: string;
+  productCategory: string;
+  productquantity: number;
+  productPrice: number;
+  productDiscount: number;
 }
 
 export interface ProductRequest {
-  name: string;
-  description: string;
-  price: number;
-  discount: number;
-  stockQuantity: number;
-  category?: string;
-  imageUrl?: string;
+  productName: string;
+  productCategory: string;
+  productquantity: number;
+  productPrice: number;
+  productDiscount: number;
 }
 

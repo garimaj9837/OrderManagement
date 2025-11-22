@@ -1,27 +1,15 @@
 export interface Customer {
   customerId: number;
-  firstName: string;
-  lastName: string;
   email: string;
-  phone: string;
+  customerName: string;
   address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  createdAt?: string;
-  updatedAt?: string;
+  pincode: number;
 }
 
 export interface CustomerRequest {
-  firstName: string;
-  lastName: string;
   email: string;
-  phone: string;
+  customerName: string;
   address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+  pincode: number;
 }
 

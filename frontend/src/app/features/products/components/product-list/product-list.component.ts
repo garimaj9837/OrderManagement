@@ -6,6 +6,7 @@ import { Product } from '../../../../models/product.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { SearchFilterComponent } from '../../../../shared/components/search-filter/search-filter.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-product-list',
@@ -23,14 +24,19 @@ export class ProductListComponent implements OnInit {
   pageSize = 10;
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'price', label: 'Price', sortable: true },
-    { key: 'discount', label: 'Discount', sortable: true },
-    { key: 'stockQuantity', label: 'Stock', sortable: true }
+    { key: 'productId', label: 'ID', sortable: true },
+    { key: 'productName', label: 'Name', sortable: true },
+    { key: 'productCategory', label: 'Category', sortable: true },
+    { key: 'productPrice', label: 'Price', sortable: true },
+    { key: 'productDiscount', label: 'Discount', sortable: true },
+    { key: 'productquantity', label: 'Stock', sortable: true }
   ];
 
-  constructor(private productService: ProductService, private router: Router) {}
+  constructor(
+    private productService: ProductService, 
+    private router: Router,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -46,6 +52,8 @@ export class ProductListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading products:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load products';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });
@@ -55,7 +63,10 @@ export class ProductListComponent implements OnInit {
     let filtered = [...this.products];
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(p => p.name.toLowerCase().includes(term));
+      filtered = filtered.filter(p => 
+        p.productName.toLowerCase().includes(term) ||
+        p.productCategory.toLowerCase().includes(term)
+      );
     }
     this.filteredProducts = filtered;
   }
@@ -67,15 +78,19 @@ export class ProductListComponent implements OnInit {
   }
 
   onEdit(product: Product): void {
-    this.router.navigate(['/products/edit', product.id]);
+    this.router.navigate(['/products/edit', product.productId]);
   }
 
   onDelete(product: Product): void {
-    this.productService.deleteProduct(product.id).subscribe({
-      next: () => this.loadProducts(),
+    this.productService.deleteProduct(product.productId).subscribe({
+      next: () => {
+        this.toastService.success('Product deleted successfully!');
+        this.loadProducts();
+      },
       error: (error) => {
         console.error('Error deleting product:', error);
-        alert('Failed to delete product');
+        const errorMessage = error?.message || error?.error?.message || 'Failed to delete product';
+        this.toastService.error(errorMessage);
       }
     });
   }

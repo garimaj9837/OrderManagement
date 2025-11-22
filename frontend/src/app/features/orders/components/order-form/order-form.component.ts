@@ -8,6 +8,7 @@ import { CustomerService } from '../../../../core/services/customer.service';
 import { OrderRequest, OrderItemRequest } from '../../../../models/order.model';
 import { Product } from '../../../../models/product.model';
 import { Customer } from '../../../../models/customer.model';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-order-form',
@@ -31,7 +32,8 @@ export class OrderFormComponent implements OnInit {
     private productService: ProductService,
     private customerService: CustomerService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService: ToastService
   ) {
     this.orderForm = this.fb.group({
       customerId: ['', Validators.required]
@@ -58,6 +60,8 @@ export class OrderFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading products:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load products';
+        this.toastService.error(errorMessage);
       }
     });
   }
@@ -69,6 +73,8 @@ export class OrderFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading customers:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load customers';
+        this.toastService.error(errorMessage);
       }
     });
   }
@@ -90,6 +96,8 @@ export class OrderFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading order:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load order';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });
@@ -105,7 +113,7 @@ export class OrderFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.orderForm.invalid || this.orderItems.length === 0) {
-      alert('Please fill all required fields and add at least one item');
+      this.toastService.warning('Please fill all required fields and add at least one item');
       return;
     }
 
@@ -120,22 +128,26 @@ export class OrderFormComponent implements OnInit {
       // For edit, we'll update the order
       this.orderService.updateOrder(this.orderId, orderRequest as any).subscribe({
         next: () => {
+          this.toastService.success('Order updated successfully!');
           this.router.navigate(['/orders']);
         },
         error: (error) => {
           console.error('Error updating order:', error);
-          alert('Failed to update order');
+          const errorMessage = error?.message || error?.error?.message || 'Failed to update order';
+          this.toastService.error(errorMessage);
           this.loading = false;
         }
       });
     } else {
       this.orderService.createOrder(orderRequest).subscribe({
         next: () => {
+          this.toastService.success('Order created successfully!');
           this.router.navigate(['/orders']);
         },
         error: (error) => {
           console.error('Error creating order:', error);
-          alert('Failed to create order: ' + error.message);
+          const errorMessage = error?.message || error?.error?.message || 'Failed to create order';
+          this.toastService.error(errorMessage);
           this.loading = false;
         }
       });
@@ -143,8 +155,7 @@ export class OrderFormComponent implements OnInit {
   }
 
   getProductName(productId: number): string {
-    const product = this.products.find(p => p.id === productId);
-    return product ? product.name : 'Unknown Product';
+    const product = this.products.find(p => p.productId === productId);
+    return product ? product.productName : 'Unknown Product';
   }
 }
-

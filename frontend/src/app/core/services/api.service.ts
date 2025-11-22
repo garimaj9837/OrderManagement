@@ -9,8 +9,8 @@ import { ErrorResponse } from '../../models/api-response.model';
 })
 export class ApiService {
   private readonly baseUrl = 'http://localhost:8082'; // Order Service
-  private readonly productServiceUrl = 'http://localhost:8081'; // Product Service
-  private readonly customerServiceUrl = 'http://localhost:8083'; // Customer Service
+  private readonly productServiceUrl = 'http://localhost:8083'; // Product Service
+  private readonly customerServiceUrl = 'http://localhost:8080'; // Customer Service
   private readonly paymentServiceUrl = 'http://localhost:8084'; // Payment Service
 
   private readonly httpOptions = {
@@ -80,11 +80,29 @@ export class ApiService {
       errorMessage = `Error: ${error.error.message}`;
     } else {
       // Server-side error
-      errorMessage = error.error?.message || error.message || errorMessage;
+      if (error.status === 0) {
+        errorMessage = 'Unable to connect to server. Please check if the service is running.';
+      } else if (error.status === 401) {
+        errorMessage = 'Unauthorized. Please login again.';
+      } else if (error.status === 403) {
+        errorMessage = 'Access forbidden. You do not have permission.';
+      } else if (error.status === 404) {
+        errorMessage = 'Resource not found.';
+      } else if (error.status === 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (error.error) {
+        // Try to extract message from different possible error formats
+        errorMessage = error.error.message || 
+                      error.error.error || 
+                      (typeof error.error === 'string' ? error.error : error.message) || 
+                      errorMessage;
+      } else {
+        errorMessage = error.message || errorMessage;
+      }
     }
     
     console.error('API Error:', error);
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => ({ message: errorMessage, error: error.error, status: error.status }));
   };
 }
 

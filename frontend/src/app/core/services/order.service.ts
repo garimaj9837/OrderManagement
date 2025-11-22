@@ -59,21 +59,21 @@ export class OrderService {
 
   addItemToOrder(orderId: number, item: OrderItem): Observable<Order> {
     return this.apiService.post<Order>(
-      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/${orderId}/items`,
+      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/addItem/${orderId}/items`,
       item
     );
   }
 
   updateOrderItem(orderId: number, itemId: number, item: Partial<OrderItem>): Observable<Order> {
     return this.apiService.put<Order>(
-      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/${orderId}/items/${itemId}`,
+      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/updateItem/${orderId}/item/${itemId}`,
       item
     );
   }
 
   deleteOrderItem(orderId: number, itemId: number): Observable<Order> {
     return this.apiService.delete<Order>(
-      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/${orderId}/items/${itemId}`
+      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/deleteitem/${orderId}/items/${itemId}`
     );
   }
 

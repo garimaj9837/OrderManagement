@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { PaymentRequest, PaymentMethod } from '../../../../models/payment.model';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-payment-form',
@@ -20,7 +21,8 @@ export class PaymentFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private paymentService: PaymentService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     this.paymentForm = this.fb.group({
       orderId: ['', Validators.required],
@@ -39,10 +41,14 @@ export class PaymentFormComponent implements OnInit {
     this.loading = true;
 
     this.paymentService.createPayment(paymentRequest).subscribe({
-      next: () => this.router.navigate(['/payments']),
+      next: () => {
+        this.toastService.success('Payment created successfully!');
+        this.router.navigate(['/payments']);
+      },
       error: (error) => {
         console.error('Error creating payment:', error);
-        alert('Failed to create payment');
+        const errorMessage = error?.message || error?.error?.message || 'Failed to create payment';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });

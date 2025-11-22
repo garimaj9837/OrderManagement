@@ -6,6 +6,7 @@ import { Payment, PaymentStatus } from '../../../../models/payment.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { SearchFilterComponent } from '../../../../shared/components/search-filter/search-filter.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-payment-list',
@@ -34,7 +35,11 @@ export class PaymentListComponent implements OnInit {
 
   statusOptions = Object.values(PaymentStatus);
 
-  constructor(private paymentService: PaymentService, private router: Router) {}
+  constructor(
+    private paymentService: PaymentService, 
+    private router: Router,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadPayments();
@@ -50,6 +55,8 @@ export class PaymentListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading payments:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load payments';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });
@@ -83,10 +90,14 @@ export class PaymentListComponent implements OnInit {
 
   onDelete(payment: Payment): void {
     this.paymentService.deletePayment(payment.paymentId).subscribe({
-      next: () => this.loadPayments(),
+      next: () => {
+        this.toastService.success('Payment deleted successfully!');
+        this.loadPayments();
+      },
       error: (error) => {
         console.error('Error deleting payment:', error);
-        alert('Failed to delete payment');
+        const errorMessage = error?.message || error?.error?.message || 'Failed to delete payment';
+        this.toastService.error(errorMessage);
       }
     });
   }

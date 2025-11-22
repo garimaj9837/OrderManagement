@@ -5,15 +5,43 @@
   </div>
   <div class="card">
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-      <div class="form-group"><label>Name *</label><input type="text" formControlName="name"></div>
-      <div class="form-group"><label>Description *</label><textarea formControlName="description"></textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label>Price *</label><input type="number" formControlName="price" step="0.01"></div>
-        <div class="form-group"><label>Discount *</label><input type="number" formControlName="discount" step="0.01"></div>
+      <div class="form-group">
+        <label>Product Name *</label>
+        <input type="text" formControlName="productName" placeholder="Enter product name">
+        <div class="error-message" *ngIf="productForm.get('productName')?.invalid && productForm.get('productName')?.touched">
+          Product name is required
+        </div>
       </div>
-      <div class="form-group"><label>Stock Quantity *</label><input type="number" formControlName="stockQuantity"></div>
-      <div class="form-group"><label>Category</label><input type="text" formControlName="category"></div>
-      <div class="form-group"><label>Image URL</label><input type="url" formControlName="imageUrl"></div>
+      <div class="form-group">
+        <label>Category *</label>
+        <input type="text" formControlName="productCategory" placeholder="Enter category">
+        <div class="error-message" *ngIf="productForm.get('productCategory')?.invalid && productForm.get('productCategory')?.touched">
+          Category is required
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price *</label>
+          <input type="number" formControlName="productPrice" step="0.01" min="0" placeholder="0.00">
+          <div class="error-message" *ngIf="productForm.get('productPrice')?.invalid && productForm.get('productPrice')?.touched">
+            Valid price is required
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Discount *</label>
+          <input type="number" formControlName="productDiscount" step="0.01" min="0" placeholder="0.00">
+          <div class="error-message" *ngIf="productForm.get('productDiscount')?.invalid && productForm.get('productDiscount')?.touched">
+            Valid discount is required
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Stock Quantity *</label>
+        <input type="number" formControlName="productquantity" min="0" placeholder="0">
+        <div class="error-message" *ngIf="productForm.get('productquantity')?.invalid && productForm.get('productquantity')?.touched">
+          Valid stock quantity is required
+        </div>
+      </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" routerLink="/products">Cancel</button>
         <button type="submit" class="btn btn-primary" [disabled]="loading || productForm.invalid">{{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}</button>

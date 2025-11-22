@@ -6,6 +6,7 @@ import { Customer } from '../../../../models/customer.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { SearchFilterComponent } from '../../../../shared/components/search-filter/search-filter.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-customer-list',
@@ -30,16 +31,16 @@ export class CustomerListComponent implements OnInit {
 
   columns: TableColumn[] = [
     { key: 'customerId', label: 'ID', sortable: true },
-    { key: 'firstName', label: 'First Name', sortable: true },
-    { key: 'lastName', label: 'Last Name', sortable: true },
+    { key: 'customerName', label: 'Customer Name', sortable: true },
     { key: 'email', label: 'Email', sortable: true },
-    { key: 'phone', label: 'Phone', sortable: true },
-    { key: 'city', label: 'City', sortable: true }
+    { key: 'address', label: 'Address', sortable: true },
+    { key: 'pincode', label: 'Pincode', sortable: true }
   ];
 
   constructor(
     private customerService: CustomerService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +57,8 @@ export class CustomerListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading customers:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load customers';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });
@@ -67,10 +70,10 @@ export class CustomerListComponent implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(customer =>
-        customer.firstName.toLowerCase().includes(term) ||
-        customer.lastName.toLowerCase().includes(term) ||
+        customer.customerName.toLowerCase().includes(term) ||
         customer.email.toLowerCase().includes(term) ||
-        customer.phone.includes(term)
+        customer.address.toLowerCase().includes(term) ||
+        customer.pincode.toString().includes(term)
       );
     }
 
@@ -96,11 +99,13 @@ export class CustomerListComponent implements OnInit {
   onDelete(customer: Customer): void {
     this.customerService.deleteCustomer(customer.customerId).subscribe({
       next: () => {
+        this.toastService.success('Customer deleted successfully!');
         this.loadCustomers();
       },
       error: (error) => {
         console.error('Error deleting customer:', error);
-        alert('Failed to delete customer');
+        const errorMessage = error?.message || error?.error?.message || 'Failed to delete customer';
+        this.toastService.error(errorMessage);
       }
     });
   }

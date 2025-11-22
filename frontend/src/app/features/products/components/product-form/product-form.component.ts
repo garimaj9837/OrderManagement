@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { ProductService } from '../../../../core/services/product.service';
 import { ProductRequest } from '../../../../models/product.model';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-product-form',
@@ -22,16 +23,15 @@ export class ProductFormComponent implements OnInit {
     private fb: FormBuilder,
     private productService: ProductService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService: ToastService
   ) {
     this.productForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      price: ['', [Validators.required, Validators.min(0)]],
-      discount: ['', [Validators.required, Validators.min(0)]],
-      stockQuantity: ['', [Validators.required, Validators.min(0)]],
-      category: [''],
-      imageUrl: ['']
+      productName: ['', Validators.required],
+      productCategory: ['', Validators.required],
+      productPrice: ['', [Validators.required, Validators.min(0)]],
+      productDiscount: ['', [Validators.required, Validators.min(0)]],
+      productquantity: ['', [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -55,6 +55,8 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading product:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load product';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });
@@ -67,19 +69,27 @@ export class ProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService.updateProduct(this.productId, productRequest).subscribe({
-        next: () => this.router.navigate(['/products']),
+        next: () => {
+          this.toastService.success('Product updated successfully!');
+          this.router.navigate(['/products']);
+        },
         error: (error) => {
           console.error('Error updating product:', error);
-          alert('Failed to update product');
+          const errorMessage = error?.message || error?.error?.message || 'Failed to update product';
+          this.toastService.error(errorMessage);
           this.loading = false;
         }
       });
     } else {
       this.productService.createProduct(productRequest).subscribe({
-        next: () => this.router.navigate(['/products']),
+        next: () => {
+          this.toastService.success('Product created successfully!');
+          this.router.navigate(['/products']);
+        },
         error: (error) => {
           console.error('Error creating product:', error);
-          alert('Failed to create product');
+          const errorMessage = error?.message || error?.error?.message || 'Failed to create product';
+          this.toastService.error(errorMessage);
           this.loading = false;
         }
       });

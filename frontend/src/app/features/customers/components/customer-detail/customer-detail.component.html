@@ -11,56 +11,31 @@
 
   <div *ngIf="customer && !loading" class="card">
     <div class="detail-section">
-      <h3>Personal Information</h3>
+      <h3>Customer Information</h3>
       <div class="detail-grid">
         <div class="detail-item">
           <label>Customer ID</label>
           <span>{{ customer.customerId }}</span>
         </div>
         <div class="detail-item">
-          <label>First Name</label>
-          <span>{{ customer.firstName }}</span>
-        </div>
-        <div class="detail-item">
-          <label>Last Name</label>
-          <span>{{ customer.lastName }}</span>
+          <label>Customer Name</label>
+          <span>{{ customer.customerName }}</span>
         </div>
         <div class="detail-item">
           <label>Email</label>
           <span>{{ customer.email }}</span>
         </div>
         <div class="detail-item">
-          <label>Phone</label>
-          <span>{{ customer.phone }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-section">
-      <h3>Address Information</h3>
-      <div class="detail-grid">
-        <div class="detail-item">
           <label>Address</label>
           <span>{{ customer.address }}</span>
         </div>
         <div class="detail-item">
-          <label>City</label>
-          <span>{{ customer.city }}</span>
-        </div>
-        <div class="detail-item">
-          <label>State</label>
-          <span>{{ customer.state }}</span>
-        </div>
-        <div class="detail-item">
-          <label>Zip Code</label>
-          <span>{{ customer.zipCode }}</span>
-        </div>
-        <div class="detail-item">
-          <label>Country</label>
-          <span>{{ customer.country }}</span>
+          <label>Pincode</label>
+          <span>{{ customer.pincode }}</span>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 

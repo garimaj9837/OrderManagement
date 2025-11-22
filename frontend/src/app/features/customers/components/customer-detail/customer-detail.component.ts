@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CustomerService } from '../../../../core/services/customer.service';
 import { Customer } from '../../../../models/customer.model';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-customer-detail',
@@ -18,7 +19,8 @@ export class CustomerDetailComponent implements OnInit {
   constructor(
     private customerService: CustomerService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +39,8 @@ export class CustomerDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading customer:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load customer';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });

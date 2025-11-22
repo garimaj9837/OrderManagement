@@ -7,7 +7,7 @@ import { Customer, CustomerRequest } from '../../models/customer.model';
   providedIn: 'root'
 })
 export class CustomerService {
-  private readonly baseUrl = '/customers';
+  private readonly baseUrl = '/customer';
 
   constructor(private apiService: ApiService) {}
 

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CustomerService } from '../../../../core/services/customer.service';
 import { CustomerRequest } from '../../../../models/customer.model';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-customer-form',
@@ -22,18 +23,14 @@ export class CustomerFormComponent implements OnInit {
     private fb: FormBuilder,
     private customerService: CustomerService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService: ToastService
   ) {
     this.customerForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      customerName: ['', Validators.required],
       address: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      zipCode: ['', Validators.required],
-      country: ['', Validators.required]
+      pincode: ['', [Validators.required, Validators.min(100000), Validators.max(999999)]]
     });
   }
 
@@ -68,28 +65,38 @@ export class CustomerFormComponent implements OnInit {
       return;
     }
 
-    const customerRequest: CustomerRequest = this.customerForm.value;
+    const formValue = this.customerForm.value;
+    const customerRequest: CustomerRequest = {
+      email: formValue.email,
+      customerName: formValue.customerName,
+      address: formValue.address,
+      pincode: Number(formValue.pincode)
+    };
     this.loading = true;
 
     if (this.isEditMode && this.customerId) {
       this.customerService.updateCustomer(this.customerId, customerRequest).subscribe({
         next: () => {
+          this.toastService.success('Customer updated successfully!');
           this.router.navigate(['/customers']);
         },
         error: (error) => {
           console.error('Error updating customer:', error);
-          alert('Failed to update customer');
+          const errorMessage = error?.message || error?.error?.message || 'Failed to update customer';
+          this.toastService.error(errorMessage);
           this.loading = false;
         }
       });
     } else {
       this.customerService.createCustomer(customerRequest).subscribe({
         next: () => {
+          this.toastService.success('Customer created successfully!');
           this.router.navigate(['/customers']);
         },
         error: (error) => {
           console.error('Error creating customer:', error);
-          alert('Failed to create customer');
+          const errorMessage = error?.message || error?.error?.message || 'Failed to create customer';
+          this.toastService.error(errorMessage);
           this.loading = false;
         }
       });

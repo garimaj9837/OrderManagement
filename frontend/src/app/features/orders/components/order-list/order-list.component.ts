@@ -6,6 +6,7 @@ import { Order, OrderStatus } from '../../../../models/order.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { SearchFilterComponent } from '../../../../shared/components/search-filter/search-filter.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-order-list',
@@ -41,7 +42,8 @@ export class OrderListComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +60,8 @@ export class OrderListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading orders:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to load orders';
+        this.toastService.error(errorMessage);
         this.loading = false;
       }
     });
@@ -110,11 +114,13 @@ export class OrderListComponent implements OnInit {
   onDelete(order: Order): void {
     this.orderService.deleteOrder(order.orderId).subscribe({
       next: () => {
+        this.toastService.success('Order deleted successfully!');
         this.loadOrders();
       },
       error: (error) => {
         console.error('Error deleting order:', error);
-        alert('Failed to delete order');
+        const errorMessage = error?.message || error?.error?.message || 'Failed to delete order';
+        this.toastService.error(errorMessage);
       }
     });
   }
