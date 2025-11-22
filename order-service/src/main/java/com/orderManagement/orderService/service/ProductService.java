@@ -2,6 +2,7 @@ package com.orderManagement.orderService.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatusCode;
 
@@ -58,6 +59,28 @@ public class ProductService {
         }
     }
     
+    public void reduceStock(int productId, int quantity){
+    	 try {
+    	        webClient.put() // Use PUT since we are updating stock
+    	            .uri((UriBuilder uriBuilder) -> uriBuilder
+    	                .path("/product/reduceStock/{id}")
+    	                .queryParam("quantity", quantity)
+    	                .build(productId))
+    	            .accept(MediaType.APPLICATION_JSON)
+    	            .retrieve()
+    	            .onStatus(HttpStatusCode::is4xxClientError, response ->
+    	                Mono.error(new RuntimeException("Invalid request — Product not found or insufficient stock.")))
+    	            .onStatus(HttpStatusCode::is5xxServerError, response ->
+    	                Mono.error(new RuntimeException("Server error while reducing stock.")))
+    	            .bodyToMono(Void.class) // no body expected from server
+    	            .doOnSuccess(v -> System.out.println("Stock reduced for product: " + productId))
+    	            .doOnError(error ->
+    	                System.err.println("❌ Error reducing stock for product " + productId + ": " + error.getMessage()))
+    	            .block();
+    	    }  catch (Exception e) {
+    	        throw new RuntimeException("Failed to reduce stock for product " + productId + ": " + e.getMessage(), e);
+    	    }
+    }
     // For reactive endpoints, you can use this method
     public Mono<ProductDto> getProductByIdReactive(int productId) {
         return webClient.get()

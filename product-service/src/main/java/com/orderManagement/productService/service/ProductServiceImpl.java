@@ -71,6 +71,19 @@ public class ProductServiceImpl implements ProductService{
 		return updatedProduct;
 	}
 
+	@Override
+	public int reduceProductQuantity(int id, int quantity) {
+		Product product=getProductById(id);
+		if(product.getProductquantity()-quantity>=0) {
+		product.setProductquantity(product.getProductquantity()-quantity);
+		} else {
+			throw new RuntimeException("Quantity is less than available quantity");
+		}
+		productRepository.save(product);
+		return product.getProductquantity();
+		
+	}
+
 
 
 

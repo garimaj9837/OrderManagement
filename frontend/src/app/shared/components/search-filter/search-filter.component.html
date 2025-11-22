@@ -1,0 +1,24 @@
+<div class="search-filter-container">
+  <div class="search-box">
+    <input
+      type="text"
+      [placeholder]="placeholder"
+      [value]="searchValue"
+      (input)="onSearch($any($event.target).value)"
+      class="search-input">
+    <button *ngIf="searchValue" class="btn-clear" (click)="onClear()">×</button>
+  </div>
+  
+  <div class="filters" *ngIf="showFilters && filterOptions.length > 0">
+    <div class="filter-group" *ngFor="let filter of filterOptions">
+      <label>{{ filter.label }}:</label>
+      <select (change)="onFilterChange(filter.key, $any($event.target).value)">
+        <option value="">All</option>
+        <option *ngFor="let option of filter.options" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+  </div>
+</div>
+

@@ -2,10 +2,15 @@ package com.orderManagement.orderService.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -17,11 +22,14 @@ import lombok.Data;
 public class Order {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int orderId;
 	private int customerId; // reference to Customer
 	private LocalDateTime orderDate;
 	private String status; // e.g., PLACED, SHIPPED, DELIVERED, CANCELLED
 	private BigDecimal totalAmount; //after adding/removing item
-	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-	private List<OrderItem> orderitems;
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private List<OrderItem> orderitems = new ArrayList<>();
+
 }

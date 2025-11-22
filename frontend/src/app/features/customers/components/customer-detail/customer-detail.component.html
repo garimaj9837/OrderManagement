@@ -1,0 +1,66 @@
+<div class="customer-detail-container">
+  <div class="page-header">
+    <h2>Customer Details</h2>
+    <div class="header-actions">
+      <button class="btn btn-secondary" routerLink="/customers">Back to Customers</button>
+      <button *ngIf="customer" class="btn btn-primary" [routerLink]="['/customers/edit', customer.customerId]">Edit Customer</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading"></div>
+
+  <div *ngIf="customer && !loading" class="card">
+    <div class="detail-section">
+      <h3>Personal Information</h3>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Customer ID</label>
+          <span>{{ customer.customerId }}</span>
+        </div>
+        <div class="detail-item">
+          <label>First Name</label>
+          <span>{{ customer.firstName }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Last Name</label>
+          <span>{{ customer.lastName }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Email</label>
+          <span>{{ customer.email }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Phone</label>
+          <span>{{ customer.phone }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Address Information</h3>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Address</label>
+          <span>{{ customer.address }}</span>
+        </div>
+        <div class="detail-item">
+          <label>City</label>
+          <span>{{ customer.city }}</span>
+        </div>
+        <div class="detail-item">
+          <label>State</label>
+          <span>{{ customer.state }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Zip Code</label>
+          <span>{{ customer.zipCode }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Country</label>
+          <span>{{ customer.country }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

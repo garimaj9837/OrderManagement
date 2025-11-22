@@ -1,0 +1,12 @@
+<div class="payment-list-container">
+  <div class="page-header">
+    <h2>Payments</h2>
+    <button class="btn btn-primary" routerLink="/payments/create">Create New Payment</button>
+  </div>
+  <app-search-filter [placeholder]="'Search payments...'" [searchValue]="searchTerm" [showFilters]="true" [filterOptions]="[{ key: 'status', label: 'Status', options: statusOptions }]" (search)="onSearch($event)" (filterChange)="onFilterChange($event)"></app-search-filter>
+  <div class="card">
+    <app-data-table [columns]="columns" [data]="paginatedPayments" [loading]="loading" (delete)="onDelete($event)"></app-data-table>
+    <app-pagination *ngIf="filteredPayments.length > 0" [currentPage]="currentPage" [totalPages]="totalPages" [pageSize]="pageSize" [totalItems]="filteredPayments.length" (pageChange)="onPageChange($event)"></app-pagination>
+  </div>
+</div>
+

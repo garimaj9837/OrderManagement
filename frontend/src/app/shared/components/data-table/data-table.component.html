@@ -1,0 +1,46 @@
+<div class="table-container">
+  <div *ngIf="loading" class="loading"></div>
+  
+  <table class="table" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th *ngFor="let column of columns" 
+            [class.sortable]="column.sortable"
+            (click)="onSort(column)">
+          {{ column.label }}
+          <span *ngIf="column.sortable && sortColumn === column.key" class="sort-indicator">
+            {{ sortDirection === 'asc' ? '↑' : '↓' }}
+          </span>
+        </th>
+        <th *ngIf="showActions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data" (click)="onRowClick(row)">
+        <td *ngFor="let column of columns">
+          <ng-container *ngIf="column.template; else defaultCell">
+            <ng-container *ngTemplateOutlet="column.template; context: { $implicit: row }"></ng-container>
+          </ng-container>
+          <ng-template #defaultCell>
+            {{ row[column.key] }}
+          </ng-template>
+        </td>
+        <td *ngIf="showActions" class="actions-cell">
+          <ng-container *ngIf="actionTemplate; else defaultActions">
+            <ng-container *ngTemplateOutlet="actionTemplate; context: { $implicit: row }"></ng-container>
+          </ng-container>
+          <ng-template #defaultActions>
+            <button class="btn btn-primary btn-sm" (click)="onEdit(row, $event)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="onDelete(row, $event)">Delete</button>
+          </ng-template>
+        </td>
+      </tr>
+      <tr *ngIf="data.length === 0">
+        <td [attr.colspan]="columns.length + (showActions ? 1 : 0)" class="empty-message">
+          {{ emptyMessage }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

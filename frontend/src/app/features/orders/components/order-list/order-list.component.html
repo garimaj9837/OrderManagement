@@ -1,0 +1,45 @@
+<div class="order-list-container">
+  <div class="page-header">
+    <h2>Orders</h2>
+    <button class="btn btn-primary" routerLink="/orders/create">Create New Order</button>
+  </div>
+
+  <app-search-filter
+    [placeholder]="'Search orders...'"
+    [searchValue]="searchTerm"
+    [showFilters]="true"
+    [filterOptions]="[
+      { key: 'status', label: 'Status', options: statusOptions }
+    ]"
+    (search)="onSearch($event)"
+    (filterChange)="onFilterChange($event)"
+    (clear)="onClear()">
+  </app-search-filter>
+
+  <div class="card">
+    <app-data-table
+      [columns]="columns"
+      [data]="paginatedOrders"
+      [loading]="loading"
+      [emptyMessage]="'No orders found'"
+      (edit)="onEdit($event)"
+      (delete)="onDelete($event)"
+      (rowClick)="onRowClick($event)">
+      <ng-template #statusTemplate let-order>
+        <span [class]="'badge ' + getStatusClass(order.status)">
+          {{ order.status }}
+        </span>
+      </ng-template>
+    </app-data-table>
+
+    <app-pagination
+      *ngIf="filteredOrders.length > 0"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [pageSize]="pageSize"
+      [totalItems]="filteredOrders.length"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  </div>
+</div>
+

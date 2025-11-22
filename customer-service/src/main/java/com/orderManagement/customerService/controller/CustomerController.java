@@ -48,15 +48,24 @@ public class CustomerController {
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Customer> updateProduct(@PathVariable int id, @RequestBody Customer customer) {
+	public ResponseEntity<Customer> updateCustomer(@PathVariable int id, @RequestBody Customer customer) {
 		Customer updatedCustomer=customerService.updateCustomer(id, customer);
 		return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteProduct(@PathVariable("id") int customerId) {
+	public ResponseEntity<String> deleteCustomer(@PathVariable("id") int customerId) {
 		String message=customerService.deleteCustomer(customerId);
 		return new ResponseEntity<>(message, HttpStatus.OK);
+	}
+	
+	@GetMapping("isValid/{id}")
+	public boolean isValidCustomer(@PathVariable("id") int customerId) {
+		if(customerService.getCustomerById(customerId)!=null) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 	
 	

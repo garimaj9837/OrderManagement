@@ -1,0 +1,58 @@
+<div class="order-form-container">
+  <div class="page-header">
+    <h2>{{ isEditMode ? 'Edit Order' : 'Create New Order' }}</h2>
+    <button class="btn btn-secondary" routerLink="/orders">Back to Orders</button>
+  </div>
+
+  <div class="card">
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Customer *</label>
+        <select formControlName="customerId">
+          <option value="">Select Customer</option>
+          <option *ngFor="let customer of customers" [value]="customer.customerId">
+            {{ customer.firstName }} {{ customer.lastName }} ({{ customer.email }})
+          </option>
+        </select>
+      </div>
+
+      <div class="order-items-section">
+        <div class="section-header">
+          <h3>Order Items</h3>
+          <button type="button" class="btn btn-primary" (click)="addItem()">Add Item</button>
+        </div>
+
+        <div *ngIf="orderItems.length === 0" class="empty-state">
+          <p>No items added. Click "Add Item" to add products to this order.</p>
+        </div>
+
+        <div *ngFor="let item of orderItems; let i = index" class="order-item">
+          <div class="form-group">
+            <label>Product *</label>
+            <select [(ngModel)]="item.productId" [ngModelOptions]="{standalone: true}">
+              <option value="0">Select Product</option>
+              <option *ngFor="let product of products" [value]="product.id">
+                {{ product.name }} - ${{ product.price }} (Stock: {{ product.stockQuantity }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}" min="1" required>
+          </div>
+
+          <button type="button" class="btn btn-danger" (click)="removeItem(i)">Remove</button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" routerLink="/orders">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || orderForm.invalid || orderItems.length === 0">
+          {{ loading ? 'Saving...' : (isEditMode ? 'Update Order' : 'Create Order') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

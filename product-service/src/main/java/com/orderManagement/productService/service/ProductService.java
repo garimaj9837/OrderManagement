@@ -15,6 +15,7 @@ public interface ProductService {
 	public void deleteProduct(int productId);
 	public List<Product> getProductsbyCategory(String category);
 	public Product updateDiscount(int id, BigDecimal discount);
+	public int reduceProductQuantity(int id, int quantity);
 	
 
 }

@@ -1,0 +1,27 @@
+<div class="app-container">
+  <header class="app-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="logo">Microservice New</h1>
+        <nav class="main-nav">
+          <a routerLink="/orders" routerLinkActive="active">Orders</a>
+          <a routerLink="/customers" routerLinkActive="active">Customers</a>
+          <a routerLink="/products" routerLinkActive="active">Products</a>
+          <a routerLink="/payments" routerLinkActive="active">Payments</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container">
+      <p>&copy; 2024 Microservice New - Order Management System. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

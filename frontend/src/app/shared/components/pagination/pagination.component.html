@@ -1,0 +1,55 @@
+<div class="pagination-container">
+  <div class="pagination-info">
+    Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} entries
+  </div>
+  
+  <div class="pagination-controls">
+    <button 
+      class="btn btn-secondary"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(1)">
+      First
+    </button>
+    <button 
+      class="btn btn-secondary"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)">
+      Previous
+    </button>
+    
+    <div class="page-numbers">
+      <button
+        *ngFor="let page of pages"
+        class="btn"
+        [class.btn-primary]="page === currentPage"
+        [class.btn-secondary]="page !== currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    </div>
+    
+    <button 
+      class="btn btn-secondary"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)">
+      Next
+    </button>
+    <button 
+      class="btn btn-secondary"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(totalPages)">
+      Last
+    </button>
+  </div>
+  
+  <div class="page-size-selector" *ngIf="showPageSize">
+    <label>Items per page:</label>
+    <select (change)="onPageSizeChange($event)" [value]="pageSize">
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+</div>
+

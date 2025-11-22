@@ -1,0 +1,72 @@
+<div class="order-detail-container">
+  <div class="page-header">
+    <h2>Order Details</h2>
+    <div class="header-actions">
+      <button class="btn btn-secondary" routerLink="/orders">Back to Orders</button>
+      <button *ngIf="order" class="btn btn-primary" [routerLink]="['/orders/edit', order.orderId]">Edit Order</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading"></div>
+
+  <div *ngIf="order && !loading" class="order-details">
+    <div class="card">
+      <div class="detail-section">
+        <h3>Order Information</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Order ID</label>
+            <span>{{ order.orderId }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Customer ID</label>
+            <span>{{ order.customerId }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Order Date</label>
+            <span>{{ order.orderDate | date: 'medium' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Status</label>
+            <span [class]="'badge ' + getStatusClass(order.status)">{{ order.status }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Total Amount</label>
+            <span class="amount">${{ order.totalAmount | number: '1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Order Items</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product ID</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Discount</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of order.orderitems">
+              <td>{{ item.productId }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ item.price | number: '1.2-2' }}</td>
+              <td>${{ item.discount | number: '1.2-2' }}</td>
+              <td>${{ item.subtotal | number: '1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="text-right"><strong>Total:</strong></td>
+              <td><strong>${{ order.totalAmount | number: '1.2-2' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,5 +1,6 @@
 package com.orderManagement.orderService.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,17 +25,21 @@ public class OrderController {
 	
 	
 	@PostMapping("/")
-	public void createOrder(@RequestBody Order order) {
-		orderService.createOrder(order);
+	public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+		Order createdOrder = orderService.createOrder(order);
+		return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/{id}")
-	public void getOrderById() {
-		
+	public ResponseEntity<Order> getOrderById(@PathVariable("id") int orderId) {
+		Order order=orderService.getOrderById(orderId);
+		return new ResponseEntity<>(order, HttpStatus.OK); 
 	}
 	
 	@GetMapping("/")
-	public void getAllOrders() {
+	public ResponseEntity<List<Order>> getAllOrders() {
+		List<Order> orders=orderService.getAllOrders();
+		return new ResponseEntity<>(orders, HttpStatus.OK);
 		
 	}
 	
@@ -61,7 +66,7 @@ public class OrderController {
 //	PATCH	/orders/{id}/status	Update only the order status
 //	DELETE	/orders/{id}	Delete or cancel the order
 	
-	@PostMapping("/{orderId}/items")
+	@PostMapping("/addItem/{orderId}/items")
 	public ResponseEntity<Order> addItemToOrder(
 			@PathVariable int orderId,
 			@RequestBody OrderItem item) {
@@ -69,7 +74,7 @@ public class OrderController {
 		return ResponseEntity.ok(updatedOrder);
 	}
 	
-	@PutMapping("/{orderId}/items/{itemId}")
+	@PutMapping("/updateItem/{orderId}/item/{itemId}")
 	public ResponseEntity<Order> updateItem(
 			@PathVariable int orderId,
 			@PathVariable int itemId,
@@ -78,7 +83,7 @@ public class OrderController {
 		return ResponseEntity.ok(updatedOrder);
 	}
 	
-	@DeleteMapping("/{orderId}/items/{itemId}")
+	@DeleteMapping("/deleteitem/{orderId}/items/{itemId}")
 	public ResponseEntity<Order> deleteItem(
 			@PathVariable int orderId,
 			@PathVariable int itemId) {
@@ -121,4 +126,12 @@ public class OrderController {
 		List<OrderItemResponseDto> response = orderService.addToCart(orderRequestDto);
 		return ResponseEntity.ok(response);
 	}
+	
+	@PostMapping("/placeOrder")
+	public ResponseEntity<List<OrderItemResponseDto>> placeOrder(@RequestBody OrderRequestDto orderRequestDto) {
+		List<OrderItemResponseDto> response = orderService.addToCart(orderRequestDto);
+		return ResponseEntity.ok(response);
+	}
+	
+	
 }

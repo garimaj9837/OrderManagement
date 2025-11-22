@@ -1,0 +1,6 @@
+.product-form-container {
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; h2 { margin: 0; font-size: 1.875rem; font-weight: 700; } }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color); }
+}
+

@@ -1,0 +1,35 @@
+<div class="customer-list-container">
+  <div class="page-header">
+    <h2>Customers</h2>
+    <button class="btn btn-primary" routerLink="/customers/create">Create New Customer</button>
+  </div>
+
+  <app-search-filter
+    [placeholder]="'Search customers...'"
+    [searchValue]="searchTerm"
+    (search)="onSearch($event)"
+    (clear)="onClear()">
+  </app-search-filter>
+
+  <div class="card">
+    <app-data-table
+      [columns]="columns"
+      [data]="paginatedCustomers"
+      [loading]="loading"
+      [emptyMessage]="'No customers found'"
+      (edit)="onEdit($event)"
+      (delete)="onDelete($event)"
+      (rowClick)="onRowClick($event)">
+    </app-data-table>
+
+    <app-pagination
+      *ngIf="filteredCustomers.length > 0"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [pageSize]="pageSize"
+      [totalItems]="filteredCustomers.length"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  </div>
+</div>
+

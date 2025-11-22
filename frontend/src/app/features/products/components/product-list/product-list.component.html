@@ -1,0 +1,12 @@
+<div class="product-list-container">
+  <div class="page-header">
+    <h2>Products</h2>
+    <button class="btn btn-primary" routerLink="/products/create">Create New Product</button>
+  </div>
+  <app-search-filter [placeholder]="'Search products...'" [searchValue]="searchTerm" (search)="onSearch($event)"></app-search-filter>
+  <div class="card">
+    <app-data-table [columns]="columns" [data]="paginatedProducts" [loading]="loading" (edit)="onEdit($event)" (delete)="onDelete($event)"></app-data-table>
+    <app-pagination *ngIf="filteredProducts.length > 0" [currentPage]="currentPage" [totalPages]="totalPages" [pageSize]="pageSize" [totalItems]="filteredProducts.length" (pageChange)="onPageChange($event)"></app-pagination>
+  </div>
+</div>
+
