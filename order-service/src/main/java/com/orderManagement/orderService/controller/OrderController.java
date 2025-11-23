@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
+@CrossOrigin(origins = "http://localhost:4200")
 public class OrderController {
 
 	private final OrderService orderService;
@@ -24,7 +25,7 @@ public class OrderController {
 	
 	
 	
-	@PostMapping("/")
+	@PostMapping({"", "/"})
 	public ResponseEntity<Order> createOrder(@RequestBody Order order) {
 		Order createdOrder = orderService.createOrder(order);
 		return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
@@ -36,7 +37,7 @@ public class OrderController {
 		return new ResponseEntity<>(order, HttpStatus.OK); 
 	}
 	
-	@GetMapping("/")
+	@GetMapping({"", "/"})
 	public ResponseEntity<List<Order>> getAllOrders() {
 		List<Order> orders=orderService.getAllOrders();
 		return new ResponseEntity<>(orders, HttpStatus.OK);

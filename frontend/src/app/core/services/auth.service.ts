@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { ApiService } from './api.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 export interface LoginRequest {
@@ -24,23 +24,83 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(
-    private apiService: ApiService,
+    private http: HttpClient,
     private router: Router
   ) {}
 
   login(credentials: LoginRequest): Observable<string> {
-    return this.apiService.post<string>(`${this.authUrl}/login`, credentials).pipe(
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    // Use responseType: 'text' to handle plain string response from backend
+    return this.http.post(`${this.authUrl}/login`, credentials, { 
+      headers, 
+      responseType: 'text' 
+    }).pipe(
       tap(token => {
-        this.setToken(token);
-        this.isAuthenticatedSubject.next(true);
+        if (token) {
+          // Handle case where token might be wrapped in quotes or extra whitespace
+          const cleanToken = token.trim().replace(/^"|"$/g, '');
+          this.setToken(cleanToken);
+          this.isAuthenticatedSubject.next(true);
+        }
+      }),
+      catchError(error => {
+        // Extract error message from error response
+        let errorMessage = 'Login failed. Please check your credentials.';
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            try {
+              const errorObj = JSON.parse(error.error);
+              errorMessage = errorObj.message || errorObj.error || errorMessage;
+            } catch {
+              errorMessage = error.error;
+            }
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          } else if (error.error.error) {
+            errorMessage = error.error.error;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        return throwError(() => ({ message: errorMessage, error: error.error, status: error.status }));
       })
     );
   }
 
   register(userData: RegisterRequest): Observable<string> {
-    return this.apiService.post<string>(`${this.authUrl}/register`, userData).pipe(
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    return this.http.post(`${this.authUrl}/register`, userData, { 
+      headers, 
+      responseType: 'text' 
+    }).pipe(
       tap(() => {
         // After registration, optionally auto-login
+      }),
+      catchError(error => {
+        let errorMessage = 'Registration failed. Please try again.';
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            try {
+              const errorObj = JSON.parse(error.error);
+              errorMessage = errorObj.message || errorObj.error || errorMessage;
+            } catch {
+              errorMessage = error.error;
+            }
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          } else if (error.error.error) {
+            errorMessage = error.error.error;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        return throwError(() => ({ message: errorMessage, error: error.error, status: error.status }));
       })
     );
   }

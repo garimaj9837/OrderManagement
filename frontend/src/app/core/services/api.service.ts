@@ -8,7 +8,7 @@ import { ErrorResponse } from '../../models/api-response.model';
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = 'http://localhost:8082'; // Order Service
+  private readonly baseUrl = 'http://localhost:8081'; // Order Service
   private readonly productServiceUrl = 'http://localhost:8083'; // Product Service
   private readonly customerServiceUrl = 'http://localhost:8080'; // Customer Service
   private readonly paymentServiceUrl = 'http://localhost:8084'; // Payment Service

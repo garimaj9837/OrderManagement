@@ -36,14 +36,41 @@ export class LoginComponent {
 
     this.loading = true;
     this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
+      next: (token) => {
+        console.log('Login successful, token received:', token ? 'Yes' : 'No');
+        this.loading = false;
         this.toastService.success('Login successful!');
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
-        this.router.navigate([returnUrl]);
+        // Small delay to ensure token is stored and auth state is updated
+        setTimeout(() => {
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
+          this.router.navigate([returnUrl]).then(success => {
+            if (!success) {
+              console.error('Navigation failed');
+            }
+          });
+        }, 100);
       },
       error: (error) => {
+        console.error('Login error:', error);
         this.loading = false;
-        const errorMessage = error?.message || error?.error?.message || 'Login failed. Please check your credentials.';
+        // Handle different error response formats
+        let errorMessage = 'Login failed. Please check your credentials.';
+        if (error?.error) {
+          if (typeof error.error === 'string') {
+            try {
+              const errorObj = JSON.parse(error.error);
+              errorMessage = errorObj.message || errorObj.error || errorMessage;
+            } catch {
+              errorMessage = error.error;
+            }
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          } else if (error.error.error) {
+            errorMessage = error.error.error;
+          }
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
         this.toastService.error(errorMessage);
       }
     });
