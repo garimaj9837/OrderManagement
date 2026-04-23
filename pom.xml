@@ -21,6 +21,7 @@
 		<module>order-service</module>
 		<module>payment-service</module>
 		<module>auth-service</module>
+		<module>apiGateway</module>
 	</modules>
 
 	<properties>
