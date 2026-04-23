@@ -18,6 +18,8 @@ export class CustomerFormComponent implements OnInit {
   customerId?: number;
   isEditMode = false;
   loading = false;
+  prefilledEmail: string | null = null;
+  returnUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -35,6 +37,22 @@ export class CustomerFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['email']) {
+        this.prefilledEmail = params['email'];
+        this.customerForm.patchValue({ email: this.prefilledEmail });
+        // Mark email field as touched if prefilled value is not a valid email
+        // This will show validation error immediately if username is not email format
+        const emailControl = this.customerForm.get('email');
+        if (emailControl && emailControl.invalid) {
+          emailControl.markAsTouched();
+        }
+      }
+      if (params['returnUrl']) {
+        this.returnUrl = params['returnUrl'];
+      }
+    });
+
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.customerId = +params['id'];
@@ -76,9 +94,10 @@ export class CustomerFormComponent implements OnInit {
 
     if (this.isEditMode && this.customerId) {
       this.customerService.updateCustomer(this.customerId, customerRequest).subscribe({
-        next: () => {
+        next: (customer) => {
           this.toastService.success('Customer updated successfully!');
-          this.router.navigate(['/customers']);
+          this.customerService.setCurrentCustomer(customer);
+          this.navigateAfterSave();
         },
         error: (error) => {
           console.error('Error updating customer:', error);
@@ -89,9 +108,10 @@ export class CustomerFormComponent implements OnInit {
       });
     } else {
       this.customerService.createCustomer(customerRequest).subscribe({
-        next: () => {
+        next: (customer) => {
           this.toastService.success('Customer created successfully!');
-          this.router.navigate(['/customers']);
+          this.customerService.setCurrentCustomer(customer);
+          this.navigateAfterSave();
         },
         error: (error) => {
           console.error('Error creating customer:', error);
@@ -101,6 +121,12 @@ export class CustomerFormComponent implements OnInit {
         }
       });
     }
+  }
+
+  private navigateAfterSave(): void {
+    this.loading = false;
+    const nextRoute = this.returnUrl || '/customers';
+    this.router.navigate([nextRoute]);
   }
 }
 

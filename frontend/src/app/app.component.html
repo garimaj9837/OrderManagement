@@ -2,12 +2,28 @@
   <header class="app-header" *ngIf="isAuthenticated$ | async">
     <div class="container">
       <div class="header-content">
-        <h1 class="logo">Microservice New</h1>
+        <h1 class="logo">
+          <a routerLink="/dashboard">Microservice New</a>
+        </h1>
         <nav class="main-nav">
-          <a routerLink="/orders" routerLinkActive="active">Orders</a>
-          <a routerLink="/customers" routerLinkActive="active">Customers</a>
-          <a routerLink="/products" routerLinkActive="active">Products</a>
-          <a routerLink="/payments" routerLinkActive="active">Payments</a>
+          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+          <a routerLink="/cart" routerLinkActive="active">
+            Cart
+            <ng-container *ngIf="cartItemCount$ | async as count">
+              <span class="cart-badge" *ngIf="count > 0">
+                {{ count }}
+              </span>
+            </ng-container>
+          </a>
+          <a routerLink="/orders" routerLinkActive="active">My Orders</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/admin" routerLinkActive="active">Admin Panel</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/customers" routerLinkActive="active">Customers</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/products" routerLinkActive="active">Products</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/payments" routerLinkActive="active">Payments</a>
+          <div class="user-info" *ngIf="currentUser$ | async as user">
+            <span class="username">{{ user.username }}</span>
+            <span class="role-badge" [class.admin]="user.role === 'ADMIN'">{{ user.role }}</span>
+          </div>
           <button class="btn btn-secondary btn-sm" (click)="logout()">Logout</button>
         </nav>
       </div>

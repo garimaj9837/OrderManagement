@@ -38,6 +38,15 @@ public class AuthService {
 			throw new RuntimeException("Invalid Password!");
 		}
 		//if username and password is correct then generate token
-		return jwtUtil.generateToken(req.username());
+		return jwtUtil.generateToken(user.getId());
+	}
+	
+	public User getUserByUsername(String username) {
+		return userRepo.findByUsername(username)
+				.orElseThrow(()->new RuntimeException("User not found!"));
+	}
+	
+	public java.util.List<User> getAllUsers() {
+		return userRepo.findAll();
 	}
 }

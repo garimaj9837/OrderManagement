@@ -2,6 +2,7 @@ package com.orderManagement.customerService.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.orderManagement.customerService.enitity.Customer;
+import com.orderManagement.customerService.security.JwtUtil;
 import com.orderManagement.customerService.service.CustomerService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("customer")
@@ -24,8 +28,11 @@ public class CustomerController {
 	
 	CustomerService customerService;
 	
-	CustomerController(CustomerService customerService){
+	JwtUtil jwtUtil;
+	
+	CustomerController(CustomerService customerService, JwtUtil jwtUtil){
 		this.customerService=customerService;
+		this.jwtUtil=jwtUtil;
 	}
 	
 	
@@ -36,8 +43,11 @@ public class CustomerController {
 	}
 	
 	@PostMapping({"", "/"})
-	public ResponseEntity<Customer> addNewCustomer(@RequestBody Customer customer) {
-		Customer addedCustomer=customerService.addNewCustomer(customer);
+	public ResponseEntity<Customer> addNewCustomer(@RequestBody Customer customer, HttpServletRequest request) {
+		String authHeader = request.getHeader("Authorization");
+	    String token = authHeader.substring(7);
+	    long userId = jwtUtil.extractUserId(token);
+		Customer addedCustomer=customerService.addNewCustomer(customer,userId);
 		return new ResponseEntity<>(addedCustomer,HttpStatus.CREATED); 
 	}
 	
@@ -66,6 +76,12 @@ public class CustomerController {
 		}else {
 			return false;
 		}
+	}
+	
+	@GetMapping("/email/{email}")
+	public ResponseEntity<Customer> getCustomerByEmail(@PathVariable String email) {
+		Customer customer = customerService.getCustomerByEmail(email);
+		return new ResponseEntity<>(customer, HttpStatus.OK);
 	}
 	
 	

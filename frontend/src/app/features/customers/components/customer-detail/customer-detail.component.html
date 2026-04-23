@@ -9,6 +9,10 @@
 
   <div *ngIf="loading" class="loading"></div>
 
+  <div *ngIf="errorMessage && !loading" class="error-banner">
+    {{ errorMessage }}
+  </div>
+
   <div *ngIf="customer && !loading" class="card">
     <div class="detail-section">
       <h3>Customer Information</h3>

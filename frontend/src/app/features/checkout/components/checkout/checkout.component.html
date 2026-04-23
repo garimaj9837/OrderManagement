@@ -1,0 +1,114 @@
+<div class="checkout-container">
+  <div class="checkout-header">
+    <h1>Checkout</h1>
+    <button (click)="cancel()" class="btn-cancel">Cancel</button>
+  </div>
+
+  <div class="checkout-content" *ngIf="cartItems.length > 0">
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div class="cart-items">
+        <div *ngFor="let item of cartItems" class="cart-item">
+          <div class="item-info">
+            <h4>{{ item.product.productName }}</h4>
+            <p class="category">{{ item.product.productCategory }}</p>
+            <p class="quantity">Quantity: {{ item.quantity }}</p>
+          </div>
+          <div class="item-price">
+            <p class="subtotal">${{ item.subtotal | number:'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="total-section">
+        <div class="total-row">
+          <span>Total:</span>
+          <span class="total-amount">${{ totalAmount | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-section">
+      <h2>Payment Information</h2>
+      <form [formGroup]="paymentForm" (ngSubmit)="processPayment()">
+        <div class="form-group">
+          <label>Card Number</label>
+          <input
+            type="text"
+            formControlName="cardNumber"
+            placeholder="1234 5678 9012 3456"
+            maxlength="16"
+            (input)="formatCardNumber($event)"
+          />
+          <div class="error-message" *ngIf="paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched">
+            Please enter a valid 16-digit card number
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Card Holder Name</label>
+          <input
+            type="text"
+            formControlName="cardHolder"
+            placeholder="John Doe"
+          />
+          <div class="error-message" *ngIf="paymentForm.get('cardHolder')?.invalid && paymentForm.get('cardHolder')?.touched">
+            Card holder name is required
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Expiry Date (MM/YY)</label>
+            <input
+              type="text"
+              formControlName="expiryDate"
+              placeholder="12/25"
+              maxlength="5"
+              (input)="formatExpiryDate($event)"
+            />
+            <div class="error-message" *ngIf="paymentForm.get('expiryDate')?.invalid && paymentForm.get('expiryDate')?.touched">
+              Please enter a valid expiry date (MM/YY)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>CVV</label>
+            <input
+              type="text"
+              formControlName="cvv"
+              placeholder="123"
+              maxlength="3"
+            />
+            <div class="error-message" *ngIf="paymentForm.get('cvv')?.invalid && paymentForm.get('cvv')?.touched">
+              Please enter a valid 3-digit CVV
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Billing Address</label>
+          <textarea
+            formControlName="billingAddress"
+            placeholder="Enter your billing address"
+            rows="3"
+          ></textarea>
+          <div class="error-message" *ngIf="paymentForm.get('billingAddress')?.invalid && paymentForm.get('billingAddress')?.touched">
+            Billing address is required
+          </div>
+        </div>
+
+        <div class="payment-actions">
+          <button
+            type="submit"
+            class="btn btn-primary btn-pay"
+            [disabled]="processingPayment || paymentForm.invalid || !customerId"
+          >
+            {{ processingPayment ? 'Processing Payment...' : ('Pay $' + (totalAmount | number:'1.2-2')) }}
+          </button>
+          <p class="mock-notice">* This is a mock payment. No actual charge will be made.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

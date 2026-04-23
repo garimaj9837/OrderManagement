@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.orderManagement.orderService.dto.OrderItemRequestDto;
 import com.orderManagement.orderService.dto.OrderItemResponseDto;
 import com.orderManagement.orderService.dto.OrderRequestDto;
 import com.orderManagement.orderService.dto.ProductDto;
@@ -79,6 +80,28 @@ public class OrderServiceImpl implements OrderService {
     // --------------------------
 
     @Transactional
+    public Order createOrderFromDto(OrderRequestDto orderRequestDto) {
+        // Convert OrderRequestDto to Order entity
+        Order order = new Order();
+        order.setCustomerId(orderRequestDto.getCustomerId());
+        order.setStatus("PLACED");
+        
+        // Convert OrderItemRequestDto to OrderItem entities
+        if (orderRequestDto.getOrderitemRequest() != null) {
+            for (OrderItemRequestDto itemDto : orderRequestDto.getOrderitemRequest()) {
+                OrderItem item = new OrderItem();
+                item.setProductId(itemDto.getProductId());
+                item.setQuantity(itemDto.getQuantity());
+                item.setOrder(order);
+                order.getOrderitems().add(item);
+            }
+        }
+        
+        // Use the existing createOrder method to handle the business logic
+        return createOrder(order);
+    }
+
+    @Transactional
     public Order createOrder(Order order) {
         validateCustomer(order.getCustomerId());
         order.setOrderDate(LocalDateTime.now());
@@ -106,6 +129,10 @@ public class OrderServiceImpl implements OrderService {
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
+    }
+
+    public List<Order> getOrdersByCustomerId(int customerId) {
+        return orderRepository.findByCustomerId(customerId);
     }
 
     public Order updateOrders(Order updateOrder, int id) {

@@ -15,21 +15,31 @@ public class JwtUtil {
 	@Value("${jwt.secret}")
     private String secret;
 	
-	public String generateToken(String username) {
+	public String generateToken(long userId) {
 		return Jwts.builder()
-				.setSubject(username)
+				.setSubject(String.valueOf(userId))
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis()+1000*60*60))
 				.signWith(SignatureAlgorithm.HS256,secret)
 				.compact();
 	}
 	
-	public String extractUsername(String token) {
-		Claims claims=Jwts.parser()
-				.setSigningKey(secret)
-				.parseClaimsJws(token)
-				.getBody();
-		return claims.getSubject();
+//	public String extractUsername(String token) {
+//		Claims claims=Jwts.parser()
+//				.setSigningKey(secret)
+//				.parseClaimsJws(token)
+//				.getBody();
+//		return claims.getSubject();
+//	}
+	
+	public Long extractUserId(String token) {
+	    String subject = Jwts.parser()
+	            .setSigningKey(secret)
+	            .parseClaimsJws(token)
+	            .getBody()
+	            .getSubject();
+
+	    return Long.parseLong(subject); 
 	}
 	
 }

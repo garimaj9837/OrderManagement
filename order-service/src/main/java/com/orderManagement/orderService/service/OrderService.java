@@ -8,8 +8,10 @@ import com.orderManagement.orderService.dto.OrderItemResponseDto;
 
 public interface OrderService {
     Order createOrder(Order order);
+    Order createOrderFromDto(OrderRequestDto orderRequestDto);
     Order getOrderById(int orderId);
     List<Order> getAllOrders();
+    List<Order> getOrdersByCustomerId(int customerId);
     Order updateOrders(Order updateOrder, int id);
     Order updateStatus(int id, String status);
     void deleteOrder(int id);

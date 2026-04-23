@@ -11,5 +11,6 @@ import com.orderManagement.orderService.entity.OrderItem;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
+	List<Order> findByCustomerId(int customerId);
 	
 }

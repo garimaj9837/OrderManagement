@@ -17,6 +17,26 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
+
+  .info-banner {
+    background: #eef6ff;
+    border: 1px solid #cce0ff;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #0b468c;
+    font-size: 0.95rem;
+  }
+
+  .field-hint {
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.875rem;
+    
+    small {
+      display: block;
+    }
+  }
   
   .form-actions {
     display: flex;

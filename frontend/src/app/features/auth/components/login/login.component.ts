@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { CustomerService } from '../../../../core/services/customer.service';
+import { User } from '../../../../models/user.model';
 
 @Component({
   selector: 'app-login',
@@ -15,13 +17,15 @@ import { ToastService } from '../../../../shared/services/toast.service';
 export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
+  private defaultReturnUrl = '/products';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private customerService: CustomerService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -36,19 +40,11 @@ export class LoginComponent {
 
     this.loading = true;
     this.authService.login(this.loginForm.value).subscribe({
-      next: (token) => {
-        console.log('Login successful, token received:', token ? 'Yes' : 'No');
+      next: (user) => {
+        console.log('Login successful, user:', user);
         this.loading = false;
-        this.toastService.success('Login successful!');
-        // Small delay to ensure token is stored and auth state is updated
-        setTimeout(() => {
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
-          this.router.navigate([returnUrl]).then(success => {
-            if (!success) {
-              console.error('Navigation failed');
-            }
-          });
-        }, 100);
+        this.toastService.success(`Welcome ${user.username}!`);
+        this.handlePostLoginNavigation(user);
       },
       error: (error) => {
         console.error('Login error:', error);
@@ -74,6 +70,39 @@ export class LoginComponent {
         this.toastService.error(errorMessage);
       }
     });
+  }
+
+  private handlePostLoginNavigation(user: User): void {
+    const targetUrl = this.route.snapshot.queryParams['returnUrl'] || this.defaultReturnUrl;
+
+    this.customerService.getCustomerByEmail(user.username).subscribe({
+      next: (customer) => {
+        this.customerService.setCurrentCustomer(customer);
+        this.navigateTo(targetUrl);
+      },
+      error: (error) => {
+        console.warn('Customer profile missing or failed to load', error);
+        const message = error?.status === 404
+          ? 'Please complete your customer details before shopping.'
+          : 'Unable to load customer profile. Please re-enter your details.';
+        this.toastService.info(message);
+        this.customerService.clearCurrentCustomer();
+        this.router.navigate(
+          ['/customers/create'],
+          { queryParams: { email: user.username, returnUrl: targetUrl } }
+        );
+      }
+    });
+  }
+
+  private navigateTo(url: string): void {
+    setTimeout(() => {
+      this.router.navigate([url]).then(success => {
+        if (!success) {
+          console.error('Navigation failed');
+        }
+      });
+    }, 100);
   }
 }
 

@@ -16,9 +16,10 @@ public class CustomerServiceImpl implements CustomerService{
 	@Autowired
 	CustomerRepository customerRepository;
 
-	public Customer addNewCustomer(Customer customer) {
+	public Customer addNewCustomer(Customer customer, Long userId) {
 		if(!existByEmail(customer.getEmail())) {
-		return customerRepository.save(customer);
+			customer.setUserId(userId);
+			return customerRepository.save(customer);
 		}else {
 			throw new DuplicateCustomerException("Duplicate Customer Found!");
 		}		
@@ -30,6 +31,14 @@ public class CustomerServiceImpl implements CustomerService{
 	
 	public Customer getCustomerById(int customerId) {
 		return customerRepository.findById(customerId).orElseThrow(()->new CustomerNotFoundException("Customer Not Found!"));
+	}
+	
+	public Customer getCustomerByEmail(String email) {
+		Customer customer = customerRepository.findByEmail(email);
+		if (customer == null) {
+			throw new CustomerNotFoundException("Customer Not Found with email: " + email);
+		}
+		return customer;
 	}
 	
 	public boolean existById(int customerId) {

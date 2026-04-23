@@ -4,14 +4,25 @@
     <button class="btn btn-secondary" routerLink="/customers">Back to Customers</button>
   </div>
 
+  <div *ngIf="prefilledEmail && !isEditMode" class="info-banner">
+    <p>Welcome! Please complete your customer profile to continue. Make sure to enter a valid email address.</p>
+  </div>
+
   <div class="card">
     <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label>Email *</label>
-        <input type="email" formControlName="email" placeholder="Enter email address">
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="Enter email address"
+        >
         <div class="error-message" *ngIf="customerForm.get('email')?.invalid && customerForm.get('email')?.touched">
           <span *ngIf="customerForm.get('email')?.errors?.['required']">Email is required</span>
-          <span *ngIf="customerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+          <span *ngIf="customerForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+        </div>
+        <div *ngIf="prefilledEmail && !isEditMode" class="field-hint">
+          <small>Please enter a valid email address. Your username was used as a placeholder.</small>
         </div>
       </div>
 

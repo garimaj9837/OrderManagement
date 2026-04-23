@@ -12,12 +12,14 @@ public class JwtUtil {
 
 	@Value("${jwt.secret}")
     private String secret;
+	
+	public Long extractUserId(String token) {
+	    String subject = Jwts.parser()
+	            .setSigningKey(secret)
+	            .parseClaimsJws(token)
+	            .getBody()
+	            .getSubject();
 
-	public String extractUsername(String token) {
-		Claims claims=Jwts.parser()
-				.setSigningKey(secret)
-				.parseClaimsJws(token)
-				.getBody();
-		return claims.getSubject();
+	    return Long.parseLong(subject); 
 	}
 }

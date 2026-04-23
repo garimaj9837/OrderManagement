@@ -3,7 +3,10 @@ import { RouterOutlet, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
 import { ToastComponent } from './shared/components/toast/toast.component';
-import { Observable } from 'rxjs';
+import { CartService } from './core/services/cart.service';
+import { Observable, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { User, UserRole } from './models/user.model';
 
 @Component({
   selector: 'app-root',
@@ -15,9 +18,22 @@ import { Observable } from 'rxjs';
 export class AppComponent {
   title = 'Microservice New - Order Management System';
   isAuthenticated$: Observable<boolean>;
+  currentUser$: Observable<User | null>;
+  cartItemCount$: Observable<number>;
+  isAdmin$: Observable<boolean>;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private cartService: CartService
+  ) {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.currentUser$ = this.authService.currentUser$;
+    this.cartItemCount$ = this.cartService.cartItems$.pipe(
+      map(items => items.reduce((sum, item) => sum + item.quantity, 0))
+    );
+    this.isAdmin$ = this.currentUser$.pipe(
+      map(user => user?.role === UserRole.ADMIN)
+    );
   }
 
   logout(): void {

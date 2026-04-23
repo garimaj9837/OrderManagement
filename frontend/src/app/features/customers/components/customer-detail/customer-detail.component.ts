@@ -15,6 +15,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
 export class CustomerDetailComponent implements OnInit {
   customer: Customer | null = null;
   loading = false;
+  errorMessage = '';
 
   constructor(
     private customerService: CustomerService,
@@ -24,14 +25,31 @@ export class CustomerDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const customerId = +params['id'];
-      this.loadCustomer(customerId);
+    this.route.params.subscribe(() => {
+      this.resolveCustomer();
+    });
+
+    this.route.queryParams.subscribe(() => {
+      this.resolveCustomer();
     });
   }
 
-  loadCustomer(customerId: number): void {
+  private resolveCustomer(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const emailParam = this.route.snapshot.queryParamMap.get('email');
+
+    if (idParam) {
+      this.loadCustomerById(+idParam);
+    } else if (emailParam) {
+      this.loadCustomerByEmail(emailParam);
+    } else {
+      this.errorMessage = 'No customer identifier provided.';
+    }
+  }
+
+  loadCustomerById(customerId: number): void {
     this.loading = true;
+    this.errorMessage = '';
     this.customerService.getCustomerById(customerId).subscribe({
       next: (customer) => {
         this.customer = customer;
@@ -41,6 +59,23 @@ export class CustomerDetailComponent implements OnInit {
         console.error('Error loading customer:', error);
         const errorMessage = error?.message || error?.error?.message || 'Failed to load customer';
         this.toastService.error(errorMessage);
+        this.loading = false;
+      }
+    });
+  }
+
+  loadCustomerByEmail(email: string): void {
+    this.loading = true;
+    this.errorMessage = '';
+    this.customerService.getCustomerByEmail(email).subscribe({
+      next: (customer) => {
+        this.customer = customer;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading customer by email:', error);
+        this.errorMessage = error?.message || 'Unable to find customer profile.';
+        this.toastService.error(this.errorMessage);
         this.loading = false;
       }
     });

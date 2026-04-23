@@ -1,0 +1,76 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Product Catalog</h1>
+    <div class="header-actions" *ngIf="isAdmin">
+      <a routerLink="/products/create" class="btn btn-primary">Add Product</a>
+      <a routerLink="/admin" class="btn btn-secondary">Admin Panel</a>
+    </div>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Search products..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch(searchTerm)"
+        class="search-input"
+      />
+    </div>
+    <div class="category-filters">
+      <button
+        *ngFor="let category of categories"
+        [class.active]="selectedCategory === category"
+        (click)="filterByCategory(category)"
+        class="category-btn"
+      >
+        {{ category }}
+      </button>
+      <button
+        [class.active]="selectedCategory === 'all'"
+        (click)="filterByCategory('all')"
+        class="category-btn"
+      >
+        All Products
+      </button>
+    </div>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading; else loadingTemplate">
+    <div *ngFor="let product of filteredProducts" class="product-card">
+      <div class="product-image">
+        <div class="placeholder-image">No Image</div>
+        <span class="stock-badge" [class.out-of-stock]="isOutOfStock(product)">
+          {{ isOutOfStock(product) ? 'Out of Stock' : 'In Stock' }}
+        </span>
+      </div>
+      <div class="product-info">
+        <h3>{{ product.productName }}</h3>
+        <p class="category">{{ product.productCategory }}</p>
+        <div class="price-section">
+          <span class="price">${{ product.productPrice | number:'1.2-2' }}</span>
+          <span class="discount" *ngIf="product.productDiscount > 0">
+            -${{ product.productDiscount | number:'1.2-2' }}
+          </span>
+        </div>
+        <p class="stock">Stock: {{ product.productquantity }}</p>
+        <button
+          class="btn-add-cart"
+          [disabled]="isOutOfStock(product)"
+          (click)="addToCart(product)"
+        >
+          {{ isOutOfStock(product) ? 'Out of Stock' : 'Add to Cart' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading">Loading products...</div>
+  </ng-template>
+
+  <div *ngIf="!loading && filteredProducts.length === 0" class="no-products">
+    <p>No products found.</p>
+  </div>
+</div>
+

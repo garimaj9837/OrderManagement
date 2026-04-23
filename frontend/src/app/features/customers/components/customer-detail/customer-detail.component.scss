@@ -32,6 +32,15 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
   }
+
+  .error-banner {
+    background: #fff5f5;
+    border: 1px solid #ffc9c9;
+    color: #a11a1a;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
   
   .detail-item {
     display: flex;
