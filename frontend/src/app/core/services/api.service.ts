@@ -8,10 +8,7 @@ import { ErrorResponse } from '../../models/api-response.model';
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = 'http://localhost:8081'; // Order Service
-  private readonly productServiceUrl = 'http://localhost:8083'; // Product Service
-  private readonly customerServiceUrl = 'http://localhost:8080'; // Customer Service
-  private readonly paymentServiceUrl = 'http://localhost:8084'; // Payment Service
+  private readonly gatewayUrl = 'http://localhost:9090/api';
 
   private readonly httpOptions = {
     headers: new HttpHeaders({
@@ -23,22 +20,22 @@ export class ApiService {
 
   // Order Service endpoints
   getOrderServiceUrl(): string {
-    return this.baseUrl;
+    return this.gatewayUrl;
   }
 
   // Product Service endpoints
   getProductServiceUrl(): string {
-    return this.productServiceUrl;
+    return this.gatewayUrl;
   }
 
   // Customer Service endpoints
   getCustomerServiceUrl(): string {
-    return this.customerServiceUrl;
+    return this.gatewayUrl;
   }
 
   // Payment Service endpoints
   getPaymentServiceUrl(): string {
-    return this.paymentServiceUrl;
+    return this.gatewayUrl;
   }
 
   // Generic HTTP methods

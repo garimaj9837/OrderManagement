@@ -7,7 +7,7 @@
 		<artifactId>microservice-new</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>customer-service</artifactId>
+	<artifactId>auth-service</artifactId>
 	<name>auth-service</name>
 	<description>This is auth microservice</description>
 

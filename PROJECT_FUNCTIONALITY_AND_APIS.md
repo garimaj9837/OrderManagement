@@ -11,12 +11,14 @@
 - `product-service` on port `8083`
 - `payment-service` intended for port `8084`, but backend implementation is currently missing
 - `auth-service` on port `8085`
+- `apiGateway` on port `9090`
 
 ### Frontend
 
 - Angular application in `frontend`
-- Runs against locally hosted backend services
+- Runs through API Gateway at `http://localhost:9090/api`
 - Uses route guards and a JWT-based login flow
+- Sends `Authorization: Bearer <jwt>` on authenticated API requests through an Angular HTTP interceptor
 
 ### Database usage
 
@@ -36,6 +38,7 @@ Each implemented Spring Boot service uses its own MySQL database:
 - The frontend stores the token in local storage.
 - The frontend fetches the logged-in user profile after login.
 - The frontend protects most routes using an auth guard.
+- API Gateway validates JWT tokens before routing protected API requests to downstream services.
 - Role support exists in the frontend and user entity (`USER`, `ADMIN`), but registration currently always creates `USER`.
 
 ### Customer management
@@ -86,10 +89,53 @@ Each implemented Spring Boot service uses its own MySQL database:
 
 - The Angular frontend contains payment models, routes, forms, and API service methods.
 - The Maven module `payment-service` exists.
+- API Gateway has a route for `/api/payments/**` to `http://localhost:8084`.
 - No backend payment controllers, entities, repositories, or services are currently present.
 - Payment functionality is therefore planned in the UI, but not implemented on the backend.
 
-## 3. Service-to-Service Communication
+## 3. API Gateway And Service-to-Service Communication
+
+### External API Gateway
+
+The Angular frontend calls backend APIs through:
+
+`http://localhost:9090/api`
+
+Gateway routes:
+
+| Gateway path | Downstream service | Strip prefix result |
+| --- | --- | --- |
+| `/api/auth/**` | `http://localhost:8085` | `/auth/**` |
+| `/api/customer/**` | `http://localhost:8080` | `/customer/**` |
+| `/api/orders/**` | `http://localhost:8081` | `/orders/**` |
+| `/api/product/**` | `http://localhost:8083` | `/product/**` |
+| `/api/payments/**` | `http://localhost:8084` | `/payments/**` |
+
+Gateway security behavior:
+
+- Allows public requests to `/api/auth/login` and `/api/auth/register`.
+- Allows `OPTIONS` requests for browser CORS preflight.
+- Requires `Authorization: Bearer <jwt>` for other gateway routes.
+- Returns `401 Unauthorized` when the token is missing, invalid, or expired.
+- Validates tokens using the same `jwt.secret` configured in `auth-service`.
+- Adds `X-Authenticated-User-Id` before forwarding authenticated requests downstream.
+
+Gateway CORS behavior:
+
+- Allows Angular dev origins `http://localhost:4200` and `http://127.0.0.1:4200`.
+- Uses `DedupeResponseHeader` for CORS response headers to avoid browser failures when downstream services also add CORS headers.
+
+### Frontend API base URLs
+
+The frontend now uses API Gateway URLs:
+
+- Auth: `http://localhost:9090/api/auth`
+- Customer: `http://localhost:9090/api/customer`
+- Order: `http://localhost:9090/api/orders`
+- Product: `http://localhost:9090/api/product`
+- Payment: `http://localhost:9090/api/payments`
+
+### `order-service` -> `customer-service`
 
 ### `order-service` -> `customer-service`
 
@@ -144,7 +190,9 @@ Each implemented Spring Boot service uses its own MySQL database:
 
 ## 5.1 Auth Service
 
-Base URL: `http://localhost:8085/auth`
+Gateway base URL: `http://localhost:9090/api/auth`
+
+Direct service URL: `http://localhost:8085/auth`
 
 ### `POST /auth/register`
 
@@ -213,7 +261,9 @@ Response:
 
 ## 5.2 Customer Service
 
-Base URL: `http://localhost:8080/customer`
+Gateway base URL: `http://localhost:9090/api/customer`
+
+Direct service URL: `http://localhost:8080/customer`
 
 Customer entity shape:
 
@@ -299,7 +349,9 @@ Returns a customer by email.
 
 ## 5.3 Product Service
 
-Base URL: `http://localhost:8083/product`
+Gateway base URL: `http://localhost:9090/api/product`
+
+Direct service URL: `http://localhost:8083/product`
 
 Product entity shape:
 
@@ -379,7 +431,9 @@ Response:
 
 ## 5.4 Order Service
 
-Base URL: `http://localhost:8081/orders`
+Gateway base URL: `http://localhost:9090/api/orders`
+
+Direct service URL: `http://localhost:8081/orders`
 
 Order entity shape:
 
@@ -542,6 +596,13 @@ Current status:
 
 ## 7. Error Handling Summary
 
+### API Gateway
+
+- missing bearer token -> `401 Unauthorized`
+- invalid JWT -> `401 Unauthorized`
+- expired JWT -> `401 Unauthorized`
+- CORS preflight requests are allowed through the gateway
+
 ### Auth service
 
 - returns JSON with `error` and `message`
@@ -575,12 +636,15 @@ Current status:
 
 - Frontend expects `PATCH /orders/{id}/status`, but backend controller only declares `PATCH /orders/{id}` and has no implementation.
 - Frontend expects `GET /orders/customer/{customerId}`, but backend does not expose that endpoint.
-- Frontend expects a payment backend on port `8084`, but no payment APIs are implemented.
+- Frontend routes payment calls through `/api/payments/**`, and API Gateway forwards to port `8084`, but no payment backend APIs are implemented yet.
 
 ### Security and configuration concerns
 
-- JWT validation filter exists in `customer-service`, but `/customer/**` is configured as permitted for all requests, so endpoint protection is currently loose.
-- Database credentials and JWT secret are hardcoded in `application.properties` files and should be moved to environment variables or external configuration.
+- API Gateway now validates JWTs for protected routes, but downstream service-level authorization still needs to be tightened.
+- Role-based authorization is not fully enforced yet. Admin-only APIs and user-owned resources still need stricter checks.
+- JWT contains the user id as subject, but role claims are not included yet.
+- Database credentials and JWT secret are hardcoded in configuration files and should be moved to environment variables or external configuration.
+- Internal service URLs are still hardcoded in configuration/classes and should become profile-driven or service-discovery driven.
 
 ## 9. Recommended Next Documentation/Engineering Improvements
 
@@ -589,4 +653,4 @@ Current status:
 - Align frontend order endpoints with backend controller mappings.
 - Lock down protected endpoints in customer and other services.
 - Add a root `README` section describing startup order for all services and the frontend.
-
+- Use `ORDER_MANAGEMENT_PRODUCT_REQUIREMENTS.md` as the product backlog for grocery and electronics order management requirements.

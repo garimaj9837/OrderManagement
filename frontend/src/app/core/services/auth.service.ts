@@ -20,7 +20,7 @@ export interface RegisterRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly authUrl = 'http://localhost:8085/auth'; // Auth Service URL
+  private readonly authUrl = 'http://localhost:9090/api/auth';
   private tokenKey = 'auth_token';
   private userKey = 'auth_user';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
