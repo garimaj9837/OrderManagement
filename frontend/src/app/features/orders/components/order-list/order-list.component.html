@@ -1,7 +1,7 @@
 <div class="order-list-container">
   <div class="page-header">
     <h2>Orders</h2>
-    <button class="btn btn-primary" routerLink="/orders/create">Create New Order</button>
+    <button *ngIf="isAdmin" class="btn btn-primary" routerLink="/orders/create">Create New Order</button>
   </div>
 
   <app-search-filter
@@ -22,6 +22,7 @@
       [data]="paginatedOrders"
       [loading]="loading"
       [emptyMessage]="'No orders found'"
+      [actionTemplate]="orderActions"
       (edit)="onEdit($event)"
       (delete)="onDelete($event)"
       (rowClick)="onRowClick($event)">
@@ -31,6 +32,18 @@
         </span>
       </ng-template>
     </app-data-table>
+
+    <ng-template #orderActions let-order>
+      <button class="btn btn-secondary btn-sm" type="button" (click)="onRowClick(order); $event.stopPropagation()">View</button>
+      <button *ngIf="isAdmin" class="btn btn-primary btn-sm" type="button" (click)="onEdit(order); $event.stopPropagation()">Edit</button>
+      <button
+        *ngIf="canCancelOrder(order)"
+        class="btn btn-danger btn-sm"
+        type="button"
+        (click)="cancelOrder(order, $event)">
+        Cancel
+      </button>
+    </ng-template>
 
     <app-pagination
       *ngIf="filteredOrders.length > 0"

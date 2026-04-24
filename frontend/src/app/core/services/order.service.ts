@@ -30,6 +30,13 @@ export class OrderService {
     );
   }
 
+  placeOrder(order: OrderRequest): Observable<Order> {
+    return this.apiService.post<Order>(
+      `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/placeOrder`,
+      order
+    );
+  }
+
   updateOrder(orderId: number, order: Partial<Order>): Observable<Order> {
     return this.apiService.put<Order>(
       `${this.apiService.getOrderServiceUrl()}${this.baseUrl}/${orderId}`,

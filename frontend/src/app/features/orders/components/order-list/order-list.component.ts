@@ -35,13 +35,7 @@ export class OrderListComponent implements OnInit {
   customerId: number | null = null;
   isAdmin = false;
 
-  columns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID', sortable: true },
-    { key: 'customerId', label: 'Customer ID', sortable: true },
-    { key: 'orderDate', label: 'Order Date', sortable: true },
-    { key: 'status', label: 'Status', sortable: true },
-    { key: 'totalAmount', label: 'Total Amount', sortable: true }
-  ];
+  columns: TableColumn[] = [];
 
   statusOptions = Object.values(OrderStatus);
 
@@ -57,6 +51,21 @@ export class OrderListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.columns = this.isAdmin
+      ? [
+          { key: 'orderId', label: 'Order ID', sortable: true },
+          { key: 'customerId', label: 'Customer ID', sortable: true },
+          { key: 'orderDate', label: 'Order Date', sortable: true },
+          { key: 'status', label: 'Status', sortable: true },
+          { key: 'totalAmount', label: 'Total Amount', sortable: true }
+        ]
+      : [
+          { key: 'orderId', label: 'Order ID', sortable: true },
+          { key: 'orderDate', label: 'Order Date', sortable: true },
+          { key: 'status', label: 'Status', sortable: true },
+          { key: 'totalAmount', label: 'Total Amount', sortable: true }
+        ];
+
     // Check for cached customer first
     const cachedCustomer = this.customerService.getCurrentCustomer();
     if (cachedCustomer) {
@@ -190,18 +199,37 @@ export class OrderListComponent implements OnInit {
   }
 
   onEdit(order: Order): void {
+    if (!this.isAdmin) {
+      this.toastService.warning('Placed orders cannot be edited.');
+      return;
+    }
     this.router.navigate(['/orders/edit', order.orderId]);
   }
 
   onDelete(order: Order): void {
-    this.orderService.deleteOrder(order.orderId).subscribe({
+    this.cancelOrder(order);
+  }
+
+  cancelOrder(order: Order, event?: Event): void {
+    event?.stopPropagation();
+
+    if (!this.canCancelOrder(order)) {
+      this.toastService.warning('This order cannot be cancelled.');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to cancel this order?')) {
+      return;
+    }
+
+    this.orderService.updateOrderStatus(order.orderId, OrderStatus.CANCELLED).subscribe({
       next: () => {
-        this.toastService.success('Order deleted successfully!');
+        this.toastService.success('Order cancelled successfully!');
         this.loadOrders();
       },
       error: (error) => {
-        console.error('Error deleting order:', error);
-        const errorMessage = error?.message || error?.error?.message || 'Failed to delete order';
+        console.error('Error cancelling order:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Failed to cancel order';
         this.toastService.error(errorMessage);
       }
     });
@@ -209,6 +237,10 @@ export class OrderListComponent implements OnInit {
 
   onRowClick(order: Order): void {
     this.router.navigate(['/orders/view', order.orderId]);
+  }
+
+  canCancelOrder(order: Order): boolean {
+    return order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.DELIVERED;
   }
 
   getStatusClass(status: string): string {

@@ -1,9 +1,17 @@
 <div class="customer-detail-container">
   <div class="page-header">
-    <h2>Customer Details</h2>
+    <h2>{{ isProfileView ? 'My Profile' : 'Customer Details' }}</h2>
     <div class="header-actions">
-      <button class="btn btn-secondary" routerLink="/customers">Back to Customers</button>
-      <button *ngIf="customer" class="btn btn-primary" [routerLink]="['/customers/edit', customer.customerId]">Edit Customer</button>
+      <button class="btn btn-secondary" [routerLink]="isProfileView ? '/dashboard' : '/customers'">
+        {{ isProfileView ? 'Back to Dashboard' : 'Back to Customers' }}
+      </button>
+      <button
+        *ngIf="customer"
+        class="btn btn-primary"
+        [routerLink]="['/customers/edit', customer.customerId]"
+        [queryParams]="isProfileView ? { returnUrl: '/profile' } : null">
+        {{ isProfileView ? 'Edit Profile' : 'Edit Customer' }}
+      </button>
     </div>
   </div>
 

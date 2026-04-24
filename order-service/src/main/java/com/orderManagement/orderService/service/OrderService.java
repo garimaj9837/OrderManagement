@@ -12,6 +12,7 @@ public interface OrderService {
     Order getOrderById(int orderId);
     List<Order> getAllOrders();
     List<Order> getOrdersByCustomerId(int customerId);
+    List<Order> getOrdersByStatus(String status);
     Order updateOrders(Order updateOrder, int id);
     Order updateStatus(int id, String status);
     void deleteOrder(int id);
@@ -24,4 +25,5 @@ public interface OrderService {
     
     // Cart management method
     List<OrderItemResponseDto> addToCart(OrderRequestDto orderRequestDto);
+    Order placeOrder(OrderRequestDto orderRequestDto);
 }

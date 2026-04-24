@@ -9,6 +9,7 @@ import com.orderManagement.orderService.entity.OrderItem;
 import com.orderManagement.orderService.service.OrderService;
 import com.orderManagement.orderService.dto.OrderRequestDto;
 import com.orderManagement.orderService.dto.OrderItemResponseDto;
+import com.orderManagement.orderService.dto.OrderStatusRequest;
 
 import java.util.List;
 
@@ -38,25 +39,34 @@ public class OrderController {
 	}
 	
 	@GetMapping({"", "/"})
-	public ResponseEntity<List<Order>> getAllOrders() {
-		List<Order> orders=orderService.getAllOrders();
+	public ResponseEntity<List<Order>> getAllOrders(@RequestParam(required = false) String status) {
+		List<Order> orders = status == null || status.isBlank()
+				? orderService.getAllOrders()
+				: orderService.getOrdersByStatus(status);
 		return new ResponseEntity<>(orders, HttpStatus.OK);
 		
 	}
 	
 	@PutMapping("/{id}")
-	public void updateOrders() {
-		
+	public ResponseEntity<Order> updateOrders(@PathVariable int id, @RequestBody Order order) {
+		Order updatedOrder = orderService.updateOrders(order, id);
+		return ResponseEntity.ok(updatedOrder);
 	}
 	
-	@PatchMapping("/{id}")
-	public void updateStatus(String status) {
-		
+	@PatchMapping("/{id}/status")
+	public ResponseEntity<Order> updateStatus(@PathVariable int id, @RequestBody OrderStatusRequest request) {
+		String status = request.status();
+		if (status == null || status.isBlank()) {
+			return ResponseEntity.badRequest().build();
+		}
+		Order updatedOrder = orderService.updateStatus(id, status);
+		return ResponseEntity.ok(updatedOrder);
 	}
 	
 	@DeleteMapping("/{id}")
-	public void deleteOrder() {
-		
+	public ResponseEntity<Void> deleteOrder(@PathVariable int id) {
+		orderService.deleteOrder(id);
+		return ResponseEntity.noContent().build();
 	}
 	
 //	Method	Endpoint	Description
@@ -100,14 +110,10 @@ public class OrderController {
 //	PUT	/orders/{orderId}/items/{itemId}	Update a line item (e.g., quantity, price)
 //	DELETE	/orders/{orderId}/items/{itemId}	Remove an item from an order
 	
-	@GetMapping("?customerId={customerId}")
-	public void getOrderByCustomerId() {
-		
-	}
-	
-	@GetMapping("?status={status}")
-	public void getOrderByStatus() {
-		
+	@GetMapping("/customer/{customerId}")
+	public ResponseEntity<List<Order>> getOrderByCustomerId(@PathVariable int customerId) {
+		List<Order> orders = orderService.getOrdersByCustomerId(customerId);
+		return ResponseEntity.ok(orders);
 	}
 	
 	@GetMapping("/orders?dateFrom=...&dateTo=...")
@@ -129,9 +135,9 @@ public class OrderController {
 	}
 	
 	@PostMapping("/placeOrder")
-	public ResponseEntity<List<OrderItemResponseDto>> placeOrder(@RequestBody OrderRequestDto orderRequestDto) {
-		List<OrderItemResponseDto> response = orderService.addToCart(orderRequestDto);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<Order> placeOrder(@RequestBody OrderRequestDto orderRequestDto) {
+		Order order = orderService.placeOrder(orderRequestDto);
+		return new ResponseEntity<>(order, HttpStatus.CREATED);
 	}
 	
 	

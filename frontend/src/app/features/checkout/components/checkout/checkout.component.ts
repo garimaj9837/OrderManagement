@@ -9,6 +9,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { Order, OrderRequest, OrderItemRequest } from '../../../../models/order.model';
 import { Customer } from '../../../../models/customer.model';
+import { PaymentMethod } from '../../../../models/payment.model';
+import { PaymentService } from '../../../../core/services/payment.service';
 
 @Component({
   selector: 'app-checkout',
@@ -28,6 +30,7 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private orderService: OrderService,
+    private paymentService: PaymentService,
     private customerService: CustomerService,
     private authService: AuthService,
     private toastService: ToastService,
@@ -124,17 +127,36 @@ export class CheckoutComponent implements OnInit {
       orderitemRequest: orderItemRequests
     };
 
-    this.orderService.createOrder(orderRequest).subscribe({
+    this.orderService.placeOrder(orderRequest).subscribe({
       next: (createdOrder: Order) => {
-        this.processingPayment = false;
-        this.cartService.clearCart();
-        this.toastService.success('Order placed successfully!');
-        this.router.navigate(['/orders'], { queryParams: { orderId: createdOrder.orderId } });
+        this.createPaymentRecord(createdOrder);
       },
       error: (error) => {
         this.processingPayment = false;
         console.error('Error creating order:', error);
         const errorMessage = error?.message || error?.error?.message || 'Failed to create order';
+        this.toastService.error(errorMessage);
+      }
+    });
+  }
+
+  private createPaymentRecord(order: Order): void {
+    this.paymentService.createPayment({
+      orderId: order.orderId,
+      customerId: order.customerId,
+      amount: order.totalAmount,
+      paymentMethod: PaymentMethod.CREDIT_CARD
+    }).subscribe({
+      next: () => {
+        this.processingPayment = false;
+        this.cartService.clearCart();
+        this.toastService.success('Order placed successfully!');
+        this.router.navigate(['/orders'], { queryParams: { orderId: order.orderId } });
+      },
+      error: (error) => {
+        this.processingPayment = false;
+        console.error('Error creating payment:', error);
+        const errorMessage = error?.message || error?.error?.message || 'Order was placed, but payment record failed';
         this.toastService.error(errorMessage);
       }
     });

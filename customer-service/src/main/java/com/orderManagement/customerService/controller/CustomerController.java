@@ -41,14 +41,27 @@ public class CustomerController {
 		List<Customer> customers=customerService.getAllCustomers();
 		return new ResponseEntity<>(customers,HttpStatus.OK); 
 	}
+
+	@GetMapping("/me")
+	public ResponseEntity<Customer> getMyCustomer(HttpServletRequest request) {
+		Long userId = extractUserId(request);
+		Customer customer = customerService.getCustomerByUserId(userId);
+		return new ResponseEntity<>(customer, HttpStatus.OK);
+	}
 	
 	@PostMapping({"", "/"})
 	public ResponseEntity<Customer> addNewCustomer(@RequestBody Customer customer, HttpServletRequest request) {
-		String authHeader = request.getHeader("Authorization");
-	    String token = authHeader.substring(7);
-	    long userId = jwtUtil.extractUserId(token);
+	    Long userId = extractUserId(request);
 		Customer addedCustomer=customerService.addNewCustomer(customer,userId);
 		return new ResponseEntity<>(addedCustomer,HttpStatus.CREATED); 
+	}
+
+	@PutMapping("/me")
+	public ResponseEntity<Customer> updateMyCustomer(@RequestBody Customer customer, HttpServletRequest request) {
+		Long userId = extractUserId(request);
+		Customer existingCustomer = customerService.getCustomerByUserId(userId);
+		Customer updatedCustomer = customerService.updateCustomer(existingCustomer.getCustomerId(), customer);
+		return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
 	}
 	
 	@GetMapping("/{id}")
@@ -82,6 +95,12 @@ public class CustomerController {
 	public ResponseEntity<Customer> getCustomerByEmail(@PathVariable String email) {
 		Customer customer = customerService.getCustomerByEmail(email);
 		return new ResponseEntity<>(customer, HttpStatus.OK);
+	}
+
+	private Long extractUserId(HttpServletRequest request) {
+		String authHeader = request.getHeader("Authorization");
+	    String token = authHeader.substring(7);
+	    return jwtUtil.extractUserId(token);
 	}
 	
 	

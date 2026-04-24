@@ -135,6 +135,10 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByCustomerId(customerId);
     }
 
+    public List<Order> getOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
+    }
+
     public Order updateOrders(Order updateOrder, int id) {
         Order order = getOrderById(id);
         order.setCustomerId(updateOrder.getCustomerId());
@@ -151,6 +155,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public void deleteOrder(int id) {
+        if (!orderRepository.existsById(id)) {
+            throw new OrderNotFoundException("Order not Found!");
+        }
         orderRepository.deleteById(id);
     }
 
@@ -209,6 +216,47 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderItemResponseDto> addToCart(OrderRequestDto orderRequestDto) {
-        return null; // Optional, not implemented yet
+        validateCustomer(orderRequestDto.getCustomerId());
+
+        if (orderRequestDto.getOrderitemRequest() == null || orderRequestDto.getOrderitemRequest().isEmpty()) {
+            throw new RuntimeException("Cart is empty");
+        }
+
+        return orderRequestDto.getOrderitemRequest().stream()
+                .map(this::validateCartItem)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public Order placeOrder(OrderRequestDto orderRequestDto) {
+        List<OrderItemResponseDto> cartItems = addToCart(orderRequestDto);
+        boolean hasUnavailableItems = cartItems.stream().anyMatch(item -> !item.isAvailable());
+        if (hasUnavailableItems) {
+            throw new RuntimeException("Some cart items are not available in the requested quantity");
+        }
+        return createOrderFromDto(orderRequestDto);
+    }
+
+    private OrderItemResponseDto validateCartItem(OrderItemRequestDto itemDto) {
+        OrderItemResponseDto response = new OrderItemResponseDto();
+        response.setProductId(itemDto.getProductId());
+        response.setQuantity(itemDto.getQuantity());
+
+        try {
+            ProductDto product = productService.getProductById(itemDto.getProductId());
+            response.setPrice(product.getProductPrice());
+            response.setDiscount(product.getProductDiscount());
+            response.setSubtotal(calculateSubtotal(itemDto.getQuantity(), product.getProductPrice(), product.getProductDiscount()));
+
+            boolean available = itemDto.getQuantity() > 0 && product.getProductquantity() >= itemDto.getQuantity();
+            response.setAvailable(available);
+            response.setMessage(available ? "Available" : "Only " + product.getProductquantity() + " item(s) available");
+            return response;
+        } catch (RuntimeException ex) {
+            response.setAvailable(false);
+            response.setMessage(ex.getMessage());
+            return response;
+        }
     }
 }

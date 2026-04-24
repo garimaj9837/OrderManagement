@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CustomerService } from '../../../../core/services/customer.service';
 import { CustomerRequest } from '../../../../models/customer.model';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-customer-form',
@@ -26,7 +27,8 @@ export class CustomerFormComponent implements OnInit {
     private customerService: CustomerService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {
     this.customerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -38,8 +40,9 @@ export class CustomerFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      if (params['email']) {
-        this.prefilledEmail = params['email'];
+      const email = params['email'] || this.authService.getCurrentUser()?.username;
+      if (email) {
+        this.prefilledEmail = email;
         this.customerForm.patchValue({ email: this.prefilledEmail });
         // Mark email field as touched if prefilled value is not a valid email
         // This will show validation error immediately if username is not email format

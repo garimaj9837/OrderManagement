@@ -40,6 +40,14 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 		return customer;
 	}
+
+	public Customer getCustomerByUserId(Long userId) {
+		Customer customer = customerRepository.findByUserId(userId);
+		if (customer == null) {
+			throw new CustomerNotFoundException("Customer Not Found for user: " + userId);
+		}
+		return customer;
+	}
 	
 	public boolean existById(int customerId) {
 		return customerRepository.existsById(customerId);

@@ -12,5 +12,11 @@
       color: var(--text-primary);
     }
   }
+
+  .actions-cell {
+    button + button {
+      margin-left: 0.5rem;
+    }
+  }
 }
 

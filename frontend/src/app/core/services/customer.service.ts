@@ -29,6 +29,12 @@ export class CustomerService {
     );
   }
 
+  getMyCustomer(): Observable<Customer> {
+    return this.apiService.get<Customer>(
+      `${this.apiService.getCustomerServiceUrl()}${this.baseUrl}/me`
+    );
+  }
+
   createCustomer(customer: CustomerRequest): Observable<Customer> {
     return this.apiService.post<Customer>(
       `${this.apiService.getCustomerServiceUrl()}${this.baseUrl}`,
@@ -39,6 +45,13 @@ export class CustomerService {
   updateCustomer(customerId: number, customer: Partial<CustomerRequest>): Observable<Customer> {
     return this.apiService.put<Customer>(
       `${this.apiService.getCustomerServiceUrl()}${this.baseUrl}/${customerId}`,
+      customer
+    );
+  }
+
+  updateMyCustomer(customer: Partial<CustomerRequest>): Observable<Customer> {
+    return this.apiService.put<Customer>(
+      `${this.apiService.getCustomerServiceUrl()}${this.baseUrl}/me`,
       customer
     );
   }

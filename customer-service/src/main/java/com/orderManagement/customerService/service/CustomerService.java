@@ -11,6 +11,7 @@ public interface CustomerService {
 	List<Customer> getAllCustomers();
 	Customer getCustomerById(int customerId);
 	Customer getCustomerByEmail(String email);
+	Customer getCustomerByUserId(Long userId);
 	Customer updateCustomer(int id, Customer customer);
 	String deleteCustomer(int customerId);
 }

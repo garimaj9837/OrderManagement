@@ -16,6 +16,7 @@
             </ng-container>
           </a>
           <a routerLink="/orders" routerLinkActive="active">My Orders</a>
+          <a routerLink="/profile" routerLinkActive="active">My Profile</a>
           <a *ngIf="isAdmin$ | async" routerLink="/admin" routerLinkActive="active">Admin Panel</a>
           <a *ngIf="isAdmin$ | async" routerLink="/customers" routerLinkActive="active">Customers</a>
           <a *ngIf="isAdmin$ | async" routerLink="/products" routerLinkActive="active">Products</a>

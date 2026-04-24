@@ -3,7 +3,8 @@
     <h2>Order Details</h2>
     <div class="header-actions">
       <button class="btn btn-secondary" routerLink="/orders">Back to Orders</button>
-      <button *ngIf="order" class="btn btn-primary" [routerLink]="['/orders/edit', order.orderId]">Edit Order</button>
+      <button *ngIf="order && isAdmin" class="btn btn-primary" [routerLink]="['/orders/edit', order.orderId]">Edit Order</button>
+      <button *ngIf="order && canCancelOrder(order)" class="btn btn-danger" type="button" (click)="cancelOrder()">Cancel Order</button>
     </div>
   </div>
 
@@ -47,6 +48,7 @@
               <th>Price</th>
               <th>Discount</th>
               <th>Subtotal</th>
+              <th *ngIf="canCancelOrder(order)">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -56,11 +58,14 @@
               <td>${{ item.price | number: '1.2-2' }}</td>
               <td>${{ item.discount | number: '1.2-2' }}</td>
               <td>${{ item.subtotal | number: '1.2-2' }}</td>
+              <td *ngIf="canCancelOrder(order)">
+                <button class="btn btn-danger btn-sm" type="button" (click)="cancelOrderItem(item)">Cancel Item</button>
+              </td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="4" class="text-right"><strong>Total:</strong></td>
+              <td [attr.colspan]="canCancelOrder(order) ? 5 : 4" class="text-right"><strong>Total:</strong></td>
               <td><strong>${{ order.totalAmount | number: '1.2-2' }}</strong></td>
             </tr>
           </tfoot>

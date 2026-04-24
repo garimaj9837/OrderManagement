@@ -17,7 +17,7 @@ import { User } from '../../../../models/user.model';
 export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
-  private defaultReturnUrl = '/products';
+  private defaultReturnUrl = '/dashboard';
 
   constructor(
     private fb: FormBuilder,
@@ -73,9 +73,10 @@ export class LoginComponent {
   }
 
   private handlePostLoginNavigation(user: User): void {
-    const targetUrl = this.route.snapshot.queryParams['returnUrl'] || this.defaultReturnUrl;
+    const requestedUrl = this.route.snapshot.queryParams['returnUrl'] || this.defaultReturnUrl;
+    const targetUrl = user.role === 'ADMIN' ? requestedUrl : this.getUserSafeReturnUrl(requestedUrl);
 
-    this.customerService.getCustomerByEmail(user.username).subscribe({
+    this.customerService.getMyCustomer().subscribe({
       next: (customer) => {
         this.customerService.setCurrentCustomer(customer);
         this.navigateTo(targetUrl);
@@ -93,6 +94,11 @@ export class LoginComponent {
         );
       }
     });
+  }
+
+  private getUserSafeReturnUrl(url: string): string {
+    const adminOnlyRoutes = ['/products', '/customers', '/payments', '/admin'];
+    return adminOnlyRoutes.some(route => url.startsWith(route)) ? this.defaultReturnUrl : url;
   }
 
   private navigateTo(url: string): void {

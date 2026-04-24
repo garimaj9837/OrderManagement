@@ -16,6 +16,8 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     boolean existsByEmailIgnoreCase(String email);
     
     Customer findByEmail(String email);
+
+    Customer findByUserId(Long userId);
     
 //    Method Name Prefix	What it does
 //    findBy	Returns entity or list

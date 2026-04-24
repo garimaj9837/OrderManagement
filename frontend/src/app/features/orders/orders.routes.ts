@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '../../core/guards/role.guard';
+import { UserRole } from '../../models/user.model';
 
 export const ORDER_ROUTES: Routes = [
   {
@@ -7,10 +9,12 @@ export const ORDER_ROUTES: Routes = [
   },
   {
     path: 'create',
+    canActivate: [roleGuard([UserRole.ADMIN])],
     loadComponent: () => import('./components/order-form/order-form.component').then(m => m.OrderFormComponent)
   },
   {
     path: 'edit/:id',
+    canActivate: [roleGuard([UserRole.ADMIN])],
     loadComponent: () => import('./components/order-form/order-form.component').then(m => m.OrderFormComponent)
   },
   {
