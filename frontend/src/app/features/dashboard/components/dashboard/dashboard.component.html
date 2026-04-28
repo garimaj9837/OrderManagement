@@ -48,9 +48,9 @@
         <h3>{{ product.productName }}</h3>
         <p class="category">{{ product.productCategory }}</p>
         <div class="price-section">
-          <span class="price">${{ product.productPrice | number:'1.2-2' }}</span>
+          <span class="price">INR {{ product.productPrice | number:'1.2-2' }}</span>
           <span class="discount" *ngIf="product.productDiscount > 0">
-            -${{ product.productDiscount | number:'1.2-2' }}
+            -INR {{ product.productDiscount | number:'1.2-2' }}
           </span>
         </div>
         <p class="stock">Stock: {{ product.productquantity }}</p>
