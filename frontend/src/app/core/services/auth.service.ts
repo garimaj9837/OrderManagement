@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject, tap, catchError, throwError, map, switchMa
 import { Router } from '@angular/router';
 import { User, UserRole } from '../../models/user.model';
 import { CustomerService } from './customer.service';
+import { environment } from '../../../environments/environment';
 
 export interface LoginRequest {
   username: string;
@@ -20,7 +21,7 @@ export interface RegisterRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly authUrl = 'http://localhost:9090/api/auth';
+  private readonly authUrl = `${environment.apiBaseUrl}/auth`;
   private tokenKey = 'auth_token';
   private userKey = 'auth_user';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());

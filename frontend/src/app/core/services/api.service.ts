@@ -3,12 +3,13 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ErrorResponse } from '../../models/api-response.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly gatewayUrl = 'http://localhost:9090/api';
+  private readonly gatewayUrl = environment.apiBaseUrl;
 
   private readonly httpOptions = {
     headers: new HttpHeaders({

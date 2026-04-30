@@ -22,13 +22,31 @@
 
 ### Database usage
 
-Each implemented Spring Boot service uses its own MySQL database:
+Each implemented Spring Boot service uses its own PostgreSQL database. Local development defaults to PostgreSQL on `localhost:5433`:
 
 - `customer-service` -> database `customer`
 - `order-service` -> database `order`
 - `product-service` -> database `product`
 - `payment-service` -> database `payment`
 - `auth-service` -> database `auth`
+
+### Runtime profiles and configuration
+
+The backend now supports separate Spring profiles for environment switching:
+
+- `local`: default profile for running services on the developer machine.
+- `docker`: used by `docker-compose.yml`, with service-to-service URLs pointing at container names.
+- `prod`: production profile that builds the PostgreSQL URL from `DB_HOST`, `DB_PORT`, and `DB_NAME`, and reads service URLs, JWT secret, and frontend origin from environment variables.
+
+Common environment variables:
+
+- `DB_USERNAME`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`
+- `JWT_SECRET`
+- `CUSTOMER_SERVICE_URI`, `ORDER_SERVICE_URI`, `PRODUCT_SERVICE_URI`, `AUTH_SERVICE_URI`, `PAYMENT_SERVICE_URI`
+- `CUSTOMER_SERVICE_URL`, `PRODUCT_SERVICE_URL` for `order-service` internal calls
+- `FRONTEND_ORIGIN`
+
+The Angular frontend now reads its gateway base URL from `src/environments/environment.ts`. Local builds use `http://localhost:9090/api`; production builds use `/api` by default.
 
 ## 2. High-Level Functionalities
 
@@ -142,7 +160,7 @@ Gateway CORS behavior:
 
 ### Frontend API base URLs
 
-The frontend now uses API Gateway URLs:
+The frontend now uses the configured Angular environment API base URL. Local development defaults to:
 
 - Auth: `http://localhost:9090/api/auth`
 - Customer: `http://localhost:9090/api/customer`
@@ -824,8 +842,7 @@ Request body:
 - Frontend route guards enforce some admin-only screens, including product management and order create/edit screens.
 - Backend role-based authorization is not fully enforced yet. Admin-only APIs and user-owned resources still need stricter service-side checks.
 - JWT contains the user id as subject, but role claims are not included yet.
-- Database credentials and JWT secret are hardcoded in configuration files and should be moved to environment variables or external configuration.
-- Internal service URLs are still hardcoded in configuration/classes and should become profile-driven or service-discovery driven.
+- Configuration now supports `local`, `docker`, and `prod` profiles with environment-variable overrides. Remaining production work: external secret management, production migration tooling, and service-side authorization hardening.
 
 ## 9. Recommended Next Documentation/Engineering Improvements
 

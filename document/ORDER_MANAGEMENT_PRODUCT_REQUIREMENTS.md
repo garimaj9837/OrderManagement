@@ -19,7 +19,7 @@ The application already has a strong foundation:
 - Normal users see only their own orders in the frontend
 - Product management routes are admin-only in the frontend
 
-The main remaining gaps are domain completeness, service-side authorization, order lifecycle depth, item-level cancellation history, inventory correctness, real payment integration, and production-style configuration.
+The main remaining gaps are domain completeness, service-side authorization, order lifecycle depth, item-level cancellation history, inventory correctness, real payment integration, production secret management, and deployment hardening.
 
 ## Phase 1: Critical Bugs And Stabilization
 
@@ -41,7 +41,7 @@ The main remaining gaps are domain completeness, service-side authorization, ord
 
 4. Implement `payment-service` backend.
    - Status: Done as a mock persistence backend.
-   - Payment entity, repository, service, controller, and MySQL configuration exist.
+   - Payment entity, repository, service, controller, and PostgreSQL configuration exist.
    - Remaining: real payment gateway integration, refunds, payment attempts, and robust failure handling.
 
 5. Prevent stock inconsistency.
@@ -54,8 +54,11 @@ The main remaining gaps are domain completeness, service-side authorization, ord
    - Downstream services should not need frontend origin configuration.
 
 7. Fix hardcoded secrets and configuration.
-   - Status: Open.
-   - Move DB passwords, JWT secret, and service URLs to environment variables or Spring profiles.
+   - Status: Partially done.
+   - Spring services now support `local`, `docker`, and `prod` profiles.
+   - PostgreSQL connection settings, JWT secret, frontend origin, gateway route URIs, and internal service URLs can be supplied through environment variables.
+   - Angular now reads the API base URL from environment files.
+   - Remaining: use a real secret manager in production and add migration tooling instead of relying on Hibernate auto-update.
 
 8. Fix customer profile access.
    - Status: Done for current frontend flow.
@@ -216,7 +219,7 @@ Current status:
 
 - Mock `payment-service` backend is implemented.
 - It supports create, list, get by id, update, delete, get by order, get by customer, and update status.
-- It persists payments in MySQL.
+- It persists payments in PostgreSQL.
 
 Target `payment-service` should evolve toward these entities:
 
@@ -355,7 +358,9 @@ Architecture tasks:
 7. Add logs with correlation or request ID.
 8. Add health checks.
 9. Add OpenAPI or Swagger documentation.
-10. Add Docker Compose for MySQL and services.
+10. Add Docker Compose for PostgreSQL and services.
+   - Status: Done for local Docker development.
+   - Remaining: add production-grade compose/Kubernetes deployment manifests, health checks per service, and externalized secrets.
 
 ## Phase 11: Testing Requirements
 
@@ -400,6 +405,6 @@ Current milestone completed:
 
 Next most important milestone:
 
-`secure ownership and admin APIs -> item-level cancellation status -> inventory reservation -> real payment confirmation`
+`secure ownership and admin APIs -> item-level cancellation status -> inventory reservation -> real payment confirmation -> production deployment hardening`
 
 This will move the app from a working local commerce flow toward a safer standard order management system.

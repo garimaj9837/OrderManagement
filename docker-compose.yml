@@ -1,17 +1,18 @@
 services:
 
-  mysql:
-    image: mysql:8
-    container_name: mysql
+  postgres:
+    image: postgres:16
+    container_name: postgres
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Garima@123}
     ports:
-      - "3307:3306"
+      - "${POSTGRES_HOST_PORT:-5434}:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,11 +21,14 @@ services:
     build: ./auth-service
     container_name: auth-service
     ports:
-      - "8085:8085"
+      - "${AUTH_HOST_PORT:-8085}:8085"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-Garima@123}
+      JWT_SECRET: ${JWT_SECRET:-o3zRbRLwQm4gwsueqP2s2PLxKpPOgZX8y6q8AZNFMl4=}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     restart: always
 
@@ -32,11 +36,14 @@ services:
     build: ./customer-service
     container_name: customer-service
     ports:
-      - "8080:8080"
+      - "${CUSTOMER_HOST_PORT:-8080}:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-Garima@123}
+      JWT_SECRET: ${JWT_SECRET:-o3zRbRLwQm4gwsueqP2s2PLxKpPOgZX8y6q8AZNFMl4=}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     restart: always
 
@@ -44,11 +51,13 @@ services:
     build: ./product-service
     container_name: product-service
     ports:
-      - "8083:8083"
+      - "${PRODUCT_HOST_PORT:-8083}:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-Garima@123}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     restart: always
 
@@ -56,11 +65,13 @@ services:
     build: ./order-service
     container_name: order-service
     ports:
-      - "8081:8081"
+      - "${ORDER_HOST_PORT:-8081}:8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-Garima@123}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       customer-service:
         condition: service_started
@@ -72,11 +83,13 @@ services:
     build: ./payment-service
     container_name: payment-service
     ports:
-      - "8084:8084"
+      - "${PAYMENT_HOST_PORT:-8084}:8084"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-Garima@123}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     restart: always
 
@@ -84,9 +97,11 @@ services:
     build: ./apiGateway
     container_name: api-gateway
     ports:
-      - "9090:9090"
+      - "${GATEWAY_HOST_PORT:-9090}:9090"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      JWT_SECRET: ${JWT_SECRET:-o3zRbRLwQm4gwsueqP2s2PLxKpPOgZX8y6q8AZNFMl4=}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:4200}
     depends_on:
       auth-service:
         condition: service_started
@@ -101,4 +116,4 @@ services:
     restart: always
 
 volumes:
-  mysql-data:
+  postgres-data:
