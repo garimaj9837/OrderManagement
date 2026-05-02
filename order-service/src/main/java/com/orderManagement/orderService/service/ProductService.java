@@ -24,7 +24,7 @@ public class ProductService {
     public ProductDto getProductById(int productId) {
         try {
             return webClient.get()
-                    .uri("/product/id/{id}", productId)
+                    .uri("/id/{id}", productId)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, response -> 
@@ -63,7 +63,7 @@ public class ProductService {
     	 try {
     	        webClient.put() // Use PUT since we are updating stock
     	            .uri((UriBuilder uriBuilder) -> uriBuilder
-    	                .path("/product/reduceStock/{id}")
+    	                .path("/reduceStock/{id}")
     	                .queryParam("quantity", quantity)
     	                .build(productId))
     	            .accept(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ public class ProductService {
     // For reactive endpoints, you can use this method
     public Mono<ProductDto> getProductByIdReactive(int productId) {
         return webClient.get()
-                .uri("/products/{id}", productId)
+                .uri("/id/{id}", productId)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(ProductDto.class)
