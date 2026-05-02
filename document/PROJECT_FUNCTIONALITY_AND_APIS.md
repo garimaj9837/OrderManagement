@@ -41,6 +41,7 @@ The backend now supports separate Spring profiles for environment switching:
 Common environment variables:
 
 - `DB_USERNAME`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`
+- `PORT` for Render-managed service ports, with service-specific local defaults when it is not set
 - `JWT_SECRET`
 - `CUSTOMER_SERVICE_URI`, `ORDER_SERVICE_URI`, `PRODUCT_SERVICE_URI`, `AUTH_SERVICE_URI`, `PAYMENT_SERVICE_URI`
 - `CUSTOMER_SERVICE_URL`, `PRODUCT_SERVICE_URL` for `order-service` internal calls
