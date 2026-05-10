@@ -22,7 +22,7 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    @Value("${frontend.origin:http://localhost:4200}")
+    @Value("${FRONTEND_ORIGIN:http://localhost:4200}")
     private String frontendOrigin;
 
     @Bean
